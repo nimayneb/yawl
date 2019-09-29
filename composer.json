@@ -1,0 +1,37 @@
+{
+  "name": "nimayneb/wildcard-trait",
+  "description": "Wildcard matcher (trait) for strings with asterisk and query token",
+  "keywords": [
+    "wildcard",
+    "pattern",
+    "asterisk",
+    "string",
+    "strings",
+    "query",
+    "question mark",
+    "questionmark",
+    "token",
+    "matcher",
+    "match"
+  ],
+  "license": "GPL-3.0",
+  "type": "library",
+  "version": "1.0",
+  "authors": [
+    {
+      "name": "Jan Runte",
+      "email": "github-0801@nimayneb.de"
+    }
+  ],
+  "require": {
+    "php": "^7.4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "JayBeeR\\Wildcard\\": "Classes/"
+    }
+  }
+}
