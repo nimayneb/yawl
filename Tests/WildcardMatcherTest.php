@@ -1,19 +1,19 @@
 <?php namespace JayBeeR\Wildcard\Tests {
 
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
-    use JayBeeR\Wildcard\Matcher;
+    use JayBeeR\Wildcard\WildcardMatcher;
     use PHPUnit\Framework\TestCase;
 
     class WildcardMatcherTest extends TestCase
     {
         /**
-         * @var Matcher|object
+         * @var WildcardMatcher|object
          */
         protected object $subject;
 
         public function setUp(): void
         {
-            $this->subject = $this->getObjectForTrait(Matcher::class);
+            $this->subject = $this->getObjectForTrait(WildcardMatcher::class);
         }
 
         /**

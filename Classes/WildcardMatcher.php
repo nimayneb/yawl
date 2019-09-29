@@ -8,7 +8,7 @@
     use Generator;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
 
-    trait Matcher
+    trait WildcardMatcher
     {
         /**
          * @param string $subject
