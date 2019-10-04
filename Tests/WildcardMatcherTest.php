@@ -220,7 +220,7 @@
          * @throws InvalidEscapedCharacterForWildcardPattern
          *
          * @dataProvider wildcardVariantsWithInvalidCharacterProvider
-         *
+         * @test
          */
         public function hasSingleByteWildcardMatchThrowsInvalidCharacterException(string $subject, string $pattern)
         {
@@ -237,7 +237,7 @@
          * @throws InvalidEscapedCharacterForWildcardPattern
          *
          * @dataProvider wildcardVariantsWithInvalidCharacterProvider
-         * @test
+         *
          */
         public function hasMultiByteWildcardMatchThrowsInvalidCharacterException(string $subject, string $pattern)
         {
@@ -254,7 +254,7 @@
          * @throws InvalidEscapedCharacterForWildcardPattern
          *
          * @dataProvider wildcardVariantsWithInvalidEscapedCharacterProvider
-         *
+         * @test
          */
         public function hasSingleByteWildcardMatchThrowsInvalidEscapedCharacterException(string $subject, string $pattern)
         {
@@ -271,7 +271,7 @@
          * @throws InvalidEscapedCharacterForWildcardPattern
          *
          * @dataProvider wildcardVariantsWithInvalidEscapedCharacterProvider
-         * @test
+         *
          */
         public function hasMultiByteWildcardMatchThrowsInvalidEscapedCharacterException(string $subject, string $pattern)
         {
