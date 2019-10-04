@@ -7,6 +7,7 @@
 
     use Generator;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
+    use JayBeeR\Wildcard\Failures\InvalidEscapedCharacterForWildcardPattern;
 
     trait WildcardMatcher
     {
@@ -18,15 +19,17 @@
          *
          * @return bool
          * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
          */
         public function hasWildcardMatch(string $subject, string $pattern): bool
         {
             $found = true;
-            $canBeNull = true;
+            $canBeZero = true;
             $neededLength = 0;
+            $maxLength = strlen($subject);
 
             foreach ($this->getWildcardToken($pattern) as $token) {
-                if (0 === ($this->strlen)($subject)) {
+                if (0 === $maxLength) {
                     $found = (
                         (Token::ZERO_OR_ONE_CHARACTER === $token)
                         || (Token::ZERO_OR_MANY_CHARACTERS === $token)
@@ -37,41 +40,48 @@
 
                 if (Token::ONE_CHARACTER === $token) {
                     $subject = ($this->substr)($subject, 1);
+                    $maxLength -= 1;
+
                     $neededLength = 0;
-                    $canBeNull = true;
+                    $canBeZero = true;
                 } elseif (Token::ZERO_OR_ONE_CHARACTER === $token) {
                     $neededLength = 1;
-                    $canBeNull = true;
+                    $canBeZero = true;
                 } elseif (Token::ZERO_OR_MANY_CHARACTERS === $token) {
-                    $neededLength = PHP_INT_MAX;
-                    $canBeNull = true;
+                    $neededLength = $maxLength;
+                    $canBeZero = true;
                 } elseif (Token::MANY_OF_CHARACTERS === $token) {
-                    $neededLength = PHP_INT_MAX;
-                    $canBeNull = false;
+                    $neededLength = $maxLength;
+                    $canBeZero = false;
                 } else {
                     if (($this->chr)(0) === $token[0]) {
                         $token = $token[1];
                     }
 
                     if (
-                        (false === ($position = ($this->strpos)($subject, $token, 0)))
-                        || ((false === $canBeNull) && (0 === $position))
+                        (false === ($position = ($this->strpos)($subject, $token)))
+                        || ((false === $canBeZero) && (0 === $position))
+                        || ((true === $canBeZero) && (1 === $neededLength) && (1 < $position))
                         || ((0 === $neededLength) && (0 !== $position))
                     ) {
                         $subject = '';
+                        $maxLength = 0;
                         $found = false;
 
                         break;
                     }
 
-                    $subject = ($this->substr)($subject, $position + ($this->strlen)($token), null);
+                    $start = $position + ($this->strlen)($token);
+                    $subject = ($this->substr)($subject, $start);
+                    $maxLength -= $start;
+
                     $neededLength = 0;
-                    $canBeNull = true;
+                    $canBeZero = true;
                 }
             }
 
-            if (0 !== ($length = ($this->strlen)($subject))) {
-                $found = ($length <= $neededLength);
+            if (('' !== $subject) && (0 !== $maxLength)) {
+                $found = ($maxLength <= $neededLength);
             }
 
             return $found;
@@ -82,6 +92,7 @@
          *
          * @return Generator|string[]
          * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
          */
         protected function getWildcardToken(string $pattern): Generator
         {
@@ -132,8 +143,8 @@
                 // backslash character: \
 
                 if (Token::ESCAPE_CHAR === $token) {
-                    if ((!isset($pattern[0])) || (null === $this->findNextToken($escapeChar = $pattern[0]))) {
-                        yield ($this->chr)(0) . $token;
+                    if ((!isset($pattern[0])) || (!$this->hasNextToken($escapeChar = $pattern[0]))) {
+                        throw new InvalidEscapedCharacterForWildcardPattern($pattern, $position);
                     } else {
                         yield ($this->chr)(0) . $escapeChar;
 
@@ -151,6 +162,20 @@
             if (0 < ($this->strlen)($pattern)) {
                 yield $pattern;
             }
+        }
+
+        /**
+         * @param string $character
+         *
+         * @return bool
+         */
+        protected function hasNextToken(string $character): bool
+        {
+            return (
+                (Token::ZERO_OR_MANY_CHARACTERS === $character[0])
+                || (Token::ONE_CHARACTER === $character[0])
+                || (Token::ESCAPE_CHAR === $character[0])
+            );
         }
 
         /**
