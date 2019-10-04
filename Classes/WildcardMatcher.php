@@ -130,9 +130,7 @@
                 // backslash character: \
 
                 if (Token::ESCAPE_CHAR === $token) {
-                    $escapeChar = $pattern[0];
-
-                    if (null === $this->findNextToken($escapeChar)) {
+                    if ((!isset($pattern[0])) || (null === $this->findNextToken($escapeChar = $pattern[0]))) {
                         yield chr(0) . $token;
                     } else {
                         yield chr(0) . $escapeChar;
