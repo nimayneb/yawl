@@ -9,7 +9,7 @@
 
     class InvalidCharacterForWildcardPattern extends Exception
     {
-        public function __construct(string $reference)
+        public function __construct(string $reference, int $position)
         {
             $speakingClassName = substr(strrchr(static::class, "\\"), 1);
             $wordsFromClassName = array_filter(preg_split('/(?=[A-Z])/', $speakingClassName));

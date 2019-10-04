@@ -87,7 +87,7 @@
 
             while (null !== ($position = $this->findNextToken($pattern))) {
                 $token = $pattern[$position];
-                $nextToken = $pattern[$position + 1];
+                $nextToken = (isset($pattern[$position + 1]) ? $pattern[$position + 1] : null);
 
                 // search phrase
 
@@ -110,7 +110,7 @@
                     || ((Token::ZERO_OR_ONE_CHARACTER === $previousToken) && (Token::ONE_CHARACTER === $token))
                     || ((Token::ZERO_OR_ONE_CHARACTER === $previousToken) && (Token::ZERO_OR_MANY_CHARACTERS === $token))
                 ) {
-                    throw new InvalidCharacterForWildcardPattern($pattern);
+                    throw new InvalidCharacterForWildcardPattern($pattern, $position);
                 }
 
                 // 1. combine two tokens (**) 1-x
