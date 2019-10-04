@@ -1,6 +1,6 @@
 {
-  "name": "nimayneb/wildcard-trait",
-  "description": "Wildcard matcher (trait) for strings with asterisk and query token",
+  "name": "nimayneb/yawl",
+  "description": "YAWL - Yet another wildcard library - Match pattern for strings with asterisk and query token",
   "keywords": [
     "wildcard",
     "pattern",

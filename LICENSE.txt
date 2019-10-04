@@ -1,4 +1,4 @@
-nimayneb.wildcard-trait - Wildcard matcher trait for strings with asterisk and query pattern
+nimayneb.yawl - Yet another wildcard library - Match pattern for strings with asterisk and query pattern
 
 -------------------------------------------------------------------------------
                     GNU GENERAL PUBLIC LICENSE

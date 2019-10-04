@@ -1,13 +1,13 @@
 <?php namespace JayBeeR\Wildcard {
 
     /*
-     * This file belongs to the package "nimayneb.wildcard-trait".
+     * This file belongs to the package "nimayneb.yawl".
      * See LICENSE.txt that was shipped with this package.
      */
 
     use Closure;
 
-    trait EncodingFunctionMapper
+    trait StringFunctionMapper
     {
         protected Closure $strlen;
 
@@ -19,7 +19,7 @@
 
         protected ?string $encoding = null;
 
-        public function setByte(): void
+        public function setSingleByte(): void
         {
             $this->encoding = null;
 

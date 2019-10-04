@@ -1,7 +1,7 @@
 <?php namespace JayBeeR\Wildcard {
 
     /*
-     * This file belongs to the package "nimayneb.wildcard-trait".
+     * This file belongs to the package "nimayneb.yawl".
      * See LICENSE.txt that was shipped with this package.
      */
 
@@ -11,12 +11,17 @@
 
     class WildcardPerformer implements Encoding
     {
-        use EncodingFunctionMapper;
+        use StringFunctionMapper;
 
         /**
          * @var array
          */
         protected array $matchesHandler = [];
+
+        /**
+         * @var array
+         */
+        protected array $cachedResults = [];
 
         /**
          * @var WildcardPerformer[]
@@ -156,7 +161,7 @@
             }
         }
 
-        function nextCharacter($subject): Generator
+        protected function nextCharacter($subject): Generator
         {
             $length = ($this->strlen)($subject);
 
@@ -167,40 +172,44 @@
 
         public function hasMatch(string $subject): bool
         {
-            $i = 0;
-            $found = false;
+            if (!isset($this->cachedResults[$subject])) {
+                $i = 0;
+                $found = false;
 
-            foreach ($this->matchesHandler as $index => ['handler' => $handler, 'phrase' => $phrase]) {
-                if (!isset($subject[$i])) {
-                    break;
-                }
-
-                if (!empty($phrase)) {
-                    if (null === ($i = $handler($subject, $i, $phrase))) {
+                foreach ($this->matchesHandler as $index => ['handler' => $handler, 'phrase' => $phrase]) {
+                    if (!isset($subject[$i])) {
                         break;
                     }
-                } else {
-                    ['handler' => $nextHandler, 'phrase' => $phrase] = next($this->matchesHandler);
 
-                    $providedHandler = null;
+                    if (!empty($phrase)) {
+                        if (null === ($i = $handler($subject, $i, $phrase))) {
+                            break;
+                        }
+                    } else {
+                        ['handler' => $nextHandler, 'phrase' => $phrase] = next($this->matchesHandler);
 
-                    if (null !== $nextHandler) {
-                        $providedHandler = function (string $subject, int $i) use ($nextHandler, $phrase): ?array {
-                            $position = $nextHandler($subject, $i, $phrase);
+                        $providedHandler = null;
 
-                            return (false !== $position) ? ['length' => ($this->strlen)($phrase), 'position' => $position] : null;
-                        };
+                        if (null !== $nextHandler) {
+                            $providedHandler = function (string $subject, int $i) use ($nextHandler, $phrase): ?array {
+                                $position = $nextHandler($subject, $i, $phrase);
+
+                                return (false !== $position) ? ['length' => ($this->strlen)($phrase), 'position' => $position] : null;
+                            };
+                        }
+
+                        if (null === ($i = $handler($subject, $i, $providedHandler))) {
+                            break;
+                        }
                     }
 
-                    if (null === ($i = $handler($subject, $i, $providedHandler))) {
-                        break;
-                    }
+                    $found = true;
                 }
 
-                $found = true;
+                $this->cachedResults[$subject] = $found;
             }
 
-            return $found;
+            return $this->cachedResults[$subject];
         }
 
         /**

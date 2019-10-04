@@ -1,7 +1,7 @@
-Wildcard Matcher
-================
+YAWL - Yet another wildcard library
+===================================
 
-This is a trait class for a wildcard matcher that finds pattern with * (asterisk) and ? (query) token.
+This is a library with classes for any wildcard implementation that finds pattern with * (asterisk) and ? (query) token.
 
 
 Problem:
@@ -59,3 +59,11 @@ Invalid wildcard pattern can not be fully recognized if a partial pattern has no
     "search phrase" => "sea??ch*****"
                              ^   ^
            pattern not found |   | invalid pattern (not recognized)
+
+
+Caching:
+--------
+
+The regular expression extension has a caching strategy to improve performance. The second time the same pattern is
+called, a tremendous increase in performance is achieved:
+

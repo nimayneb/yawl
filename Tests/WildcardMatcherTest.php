@@ -18,7 +18,7 @@
          *               0 |             1 |              0 | ?
          *               0 |             1 |              1 | **
          *               1 |             0 |              0 | (empty string)
-         *               1 |             0 |              1 | ??** (special)
+         *               1 |             0 |              1 | ??** (draft)
          *               1 |             1 |              0 | ?*
          *               1 |             1 |              1 | *
          *
@@ -187,9 +187,9 @@
          * @dataProvider wildcardVariantsProvider
          * @test
          */
-        public function hasByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
+        public function hasSingleByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
-            $this->subject->setByte();
+            $this->subject->setSingleByte();
             $result = $this->subject->hasWildcardMatch($subject, $pattern);
             $this->assertEquals($valid, $result);
         }
@@ -200,9 +200,10 @@
          * @param bool $valid
          *
          * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
          *
          * @dataProvider wildcardVariantsProvider
-         * @test
+         *
          */
         public function hasMultiByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
@@ -219,12 +220,12 @@
          * @throws InvalidEscapedCharacterForWildcardPattern
          *
          * @dataProvider wildcardVariantsWithInvalidCharacterProvider
-         * @test
+         *
          */
-        public function hasWildcardMatchThrowsInvalidCharacterException(string $subject, string $pattern)
+        public function hasSingleByteWildcardMatchThrowsInvalidCharacterException(string $subject, string $pattern)
         {
-            $this->subject->setByte();
             $this->expectException(InvalidCharacterForWildcardPattern::class);
+            $this->subject->setSingleByte();
             $this->subject->hasWildcardMatch($subject, $pattern);
         }
 
@@ -233,14 +234,32 @@
          * @param string $pattern
          *
          * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
          *
-         * @dataProvider wildcardVariantsWithExceptionsProvider
+         * @dataProvider wildcardVariantsWithInvalidCharacterProvider
          * @test
          */
-        public function hasMultiByteWildcardMatchThrowsException(string $subject, string $pattern)
+        public function hasMultiByteWildcardMatchThrowsInvalidCharacterException(string $subject, string $pattern)
         {
-            $this->subject->setMultiByte();
             $this->expectException(InvalidCharacterForWildcardPattern::class);
+            $this->subject->setMultiByte();
+            $this->subject->hasWildcardMatch($subject, $pattern);
+        }
+
+        /**
+         * @param string $subject
+         * @param string $pattern
+         *
+         * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
+         *
+         * @dataProvider wildcardVariantsWithInvalidEscapedCharacterProvider
+         *
+         */
+        public function hasSingleByteWildcardMatchThrowsInvalidEscapedCharacterException(string $subject, string $pattern)
+        {
+            $this->expectException(InvalidEscapedCharacterForWildcardPattern::class);
+            $this->subject->setSingleByte();
             $this->subject->hasWildcardMatch($subject, $pattern);
         }
 
@@ -254,9 +273,10 @@
          * @dataProvider wildcardVariantsWithInvalidEscapedCharacterProvider
          * @test
          */
-        public function hasWildcardMatchThrowsInvalidEscapedCharacterException(string $subject, string $pattern)
+        public function hasMultiByteWildcardMatchThrowsInvalidEscapedCharacterException(string $subject, string $pattern)
         {
             $this->expectException(InvalidEscapedCharacterForWildcardPattern::class);
+            $this->subject->setMultiByte();
             $this->subject->hasWildcardMatch($subject, $pattern);
         }
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file belongs to the package "nimayneb.wildcard-trait".
+ * This file belongs to the package "nimayneb.yawl".
  * See LICENSE.txt that was shipped with this package.
  */
 

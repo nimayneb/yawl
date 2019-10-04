@@ -1,7 +1,7 @@
 <?php namespace JayBeeR\Wildcard {
 
     /*
-     * This file belongs to the package "nimayneb.wildcard-trait".
+     * This file belongs to the package "nimayneb.yawl".
      * See LICENSE.txt that was shipped with this package.
      */
 
@@ -11,7 +11,7 @@
 
     trait WildcardMatcher
     {
-        use EncodingFunctionMapper;
+        use StringFunctionMapper;
 
         /**
          * @param string $subject
@@ -26,7 +26,7 @@
             $found = true;
             $canBeZero = true;
             $neededLength = 0;
-            $maxLength = strlen($subject);
+            $maxLength = ($this->strlen)($subject);
 
             foreach ($this->getWildcardToken($pattern) as $token) {
                 if (0 === $maxLength) {
