@@ -10,6 +10,8 @@
 
     trait WildcardMatcher
     {
+        use Encoding;
+
         /**
          * @param string $subject
          * @param string $pattern
@@ -24,7 +26,7 @@
             $neededLength = 0;
 
             foreach ($this->getWildcardToken($pattern) as $token) {
-                if (0 === strlen($subject)) {
+                if (0 === ($this->strlen)($subject)) {
                     $found = (
                         (Token::ZERO_OR_ONE_CHARACTER === $token)
                         || (Token::ZERO_OR_MANY_CHARACTERS === $token)
@@ -34,7 +36,7 @@
                 }
 
                 if (Token::ONE_CHARACTER === $token) {
-                    $subject = substr($subject, 1);
+                    $subject = ($this->substr)($subject, 1);
                     $neededLength = 0;
                     $canBeNull = true;
                 } elseif (Token::ZERO_OR_ONE_CHARACTER === $token) {
@@ -47,12 +49,12 @@
                     $neededLength = PHP_INT_MAX;
                     $canBeNull = false;
                 } else {
-                    if (chr(0) === $token[0]) {
+                    if (($this->chr)(0) === $token[0]) {
                         $token = $token[1];
                     }
 
                     if (
-                        (false === ($position = strpos($subject, $token)))
+                        (false === ($position = ($this->strpos)($subject, $token, 0)))
                         || ((false === $canBeNull) && (0 === $position))
                         || ((0 === $neededLength) && (0 !== $position))
                     ) {
@@ -62,13 +64,13 @@
                         break;
                     }
 
-                    $subject = substr($subject, $position + strlen($token));
+                    $subject = ($this->substr)($subject, $position + ($this->strlen)($token), null);
                     $neededLength = 0;
                     $canBeNull = true;
                 }
             }
 
-            if (0 !== ($length = strlen($subject))) {
+            if (0 !== ($length = ($this->strlen)($subject))) {
                 $found = ($length <= $neededLength);
             }
 
@@ -94,10 +96,10 @@
                 if (0 < $position) {
                     $previousToken = null;
 
-                    yield substr($pattern, 0, $position);
+                    yield ($this->substr)($pattern, 0, $position);
                 }
 
-                $pattern = substr($pattern, $position + 1);
+                $pattern = ($this->substr)($pattern, $position + 1);
 
                 // 1. no combination of token (***)
                 // 2. no combination of token (?**)
@@ -118,10 +120,10 @@
 
                 if ((Token::ZERO_OR_MANY_CHARACTERS === $token) && (Token::ZERO_OR_MANY_CHARACTERS === $nextToken)) {
                     $token = Token::MANY_OF_CHARACTERS;
-                    $pattern = substr($pattern, 1);
+                    $pattern = ($this->substr)($pattern, 1);
                 } elseif ((Token::ONE_CHARACTER === $token) && (Token::ZERO_OR_MANY_CHARACTERS === $nextToken)) {
                     $token = Token::ZERO_OR_ONE_CHARACTER;
-                    $pattern = substr($pattern, 1);
+                    $pattern = ($this->substr)($pattern, 1);
                 }
 
                 $previousToken = $token;
@@ -133,11 +135,11 @@
                     $escapeChar = $pattern[0];
 
                     if (null === $this->findNextToken($escapeChar)) {
-                        yield chr(0) . $token;
+                        yield ($this->chr)(0) . $token;
                     } else {
-                        yield chr(0) . $escapeChar;
+                        yield ($this->chr)(0) . $escapeChar;
 
-                        $pattern = substr($pattern, 1);
+                        $pattern = ($this->substr)($pattern, 1);
                     }
 
                     continue;
@@ -148,7 +150,7 @@
 
             // search phrase
 
-            if (0 < strlen($pattern)) {
+            if (0 < ($this->strlen)($pattern)) {
                 yield $pattern;
             }
         }
@@ -162,9 +164,9 @@
         {
             $positions = array_filter(
                 [
-                    strpos($pattern, Token::ZERO_OR_MANY_CHARACTERS),
-                    strpos($pattern, Token::ONE_CHARACTER),
-                    strpos($pattern, Token::ESCAPE_CHAR)
+                    ($this->strpos)($pattern, Token::ZERO_OR_MANY_CHARACTERS),
+                    ($this->strpos)($pattern, Token::ONE_CHARACTER),
+                    ($this->strpos)($pattern, Token::ESCAPE_CHAR)
                 ],
                 fn ($value) => false !== $value
             );

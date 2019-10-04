@@ -1,21 +1,11 @@
 <?php namespace JayBeeR\Wildcard\Tests {
 
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
-    use JayBeeR\Wildcard\WildcardMatcher;
+    use JayBeeR\Wildcard\WildcardPerformer;
     use PHPUnit\Framework\TestCase;
 
-    class WildcardMatcherTest extends TestCase
+    class WildcardPerformerTest extends TestCase
     {
-        /**
-         * @var WildcardMatcher|object
-         */
-        protected object $subject;
-
-        public function setUp(): void
-        {
-            $this->subject = $this->getObjectForTrait(WildcardMatcher::class);
-        }
-
         /**
          * @return array
          */
@@ -104,27 +94,12 @@
          * @dataProvider wildcardVariantsProvider
          * @test
          */
-        public function hasByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
+        public function hasWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
-            $this->subject->setByte();
-            $result = $this->subject->hasWildcardMatch($subject, $pattern);
-            $this->assertEquals($valid, $result);
-        }
+            $performer = WildcardPerformer::get($pattern);
+            $performer->setByte();
 
-        /**
-         * @param string $subject
-         * @param string $pattern
-         * @param bool $valid
-         *
-         * @throws InvalidCharacterForWildcardPattern
-         *
-         * @dataProvider wildcardVariantsProvider
-         * @test
-         */
-        public function hasMultiByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
-        {
-            $this->subject->setMultiByte();
-            $result = $this->subject->hasWildcardMatch($subject, $pattern);
+            $result = $performer->hasMatch($subject);
             $this->assertEquals($valid, $result);
         }
 
@@ -137,27 +112,10 @@
          * @dataProvider wildcardVariantsWithExceptionsProvider
          * @test
          */
-        public function hasByteWildcardMatchThrowsException(string $subject, string $pattern)
+        public function hasWildcardMatchThrowsException(string $subject, string $pattern)
         {
-            $this->subject->setByte();
             $this->expectException(InvalidCharacterForWildcardPattern::class);
-            $this->subject->hasWildcardMatch($subject, $pattern);
-        }
-
-        /**
-         * @param string $subject
-         * @param string $pattern
-         *
-         * @throws InvalidCharacterForWildcardPattern
-         *
-         * @dataProvider wildcardVariantsWithExceptionsProvider
-         * @test
-         */
-        public function hasMultiByteWildcardMatchThrowsException(string $subject, string $pattern)
-        {
-            $this->subject->setMultiByte();
-            $this->expectException(InvalidCharacterForWildcardPattern::class);
-            $this->subject->hasWildcardMatch($subject, $pattern);
+            WildcardPerformer::get($pattern);
         }
     }
 }
