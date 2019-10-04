@@ -1,5 +1,6 @@
 <?php namespace JayBeeR\Wildcard\Tests {
 
+    use JayBeeR\Wildcard\Encoding;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
     use JayBeeR\Wildcard\WildcardPerformer;
     use PHPUnit\Framework\TestCase;
@@ -94,10 +95,9 @@
          * @dataProvider wildcardVariantsProvider
          * @test
          */
-        public function hasWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
+        public function hasMultiByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
-            $performer = WildcardPerformer::get($pattern);
-            $performer->setByte();
+            $performer = WildcardPerformer::get($pattern, fn(Encoding $performer) => $performer->setMultiByte());
 
             $result = $performer->hasMatch($subject);
             $this->assertEquals($valid, $result);
@@ -112,10 +112,10 @@
          * @dataProvider wildcardVariantsWithExceptionsProvider
          * @test
          */
-        public function hasWildcardMatchThrowsException(string $subject, string $pattern)
+        public function hasMultiByteWildcardMatchThrowsException(string $subject, string $pattern)
         {
             $this->expectException(InvalidCharacterForWildcardPattern::class);
-            WildcardPerformer::get($pattern);
+            WildcardPerformer::get($pattern, fn(Encoding $performer) => $performer->setMultiByte());
         }
     }
 }

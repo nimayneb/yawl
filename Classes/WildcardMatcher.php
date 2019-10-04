@@ -10,7 +10,7 @@
 
     trait WildcardMatcher
     {
-        use Encoding;
+        use EncodingFunctionMapper;
 
         /**
          * @param string $subject

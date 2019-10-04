@@ -23,11 +23,16 @@
         {
             return [
                 ['s', '?', true],
+                ['', '?', false],
                 ['s', '*', true],
                 ['s', '??', false],
+                ['ss', '??', true],
+                ['sss', '??', false],
                 ['ss', '*', true],
                 ['', '*', true],
+                [' ', '*', true],
                 ['', '**', false],
+                [' ', '**', true],
 
                 ['search phrase', 'search**phrase', true],
                 ['search phrase', 'search*phrase', true],
@@ -36,6 +41,11 @@
                 ['search phrase', 'search phrase?*', true],
                 ['search phrases', 'search phrase?*', true],
                 ['search phrasess', 'search phrase?*', false],
+
+                ['search phrase', 'search?*phrase', true],
+                ['search  phrase', 'search?*phrase', false],
+                ['searchphrase', 'search?*phrase', true],
+                ['searchphrases', 'search?*phrase', false],
 
                 ['search phrase', '*', true],
                 ['search phrase', '*phrase', true],

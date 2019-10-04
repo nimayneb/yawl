@@ -9,9 +9,9 @@
     use Generator;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
 
-    class WildcardPerformer
+    class WildcardPerformer implements Encoding
     {
-        use Encoding;
+        use EncodingFunctionMapper;
 
         /**
          * @var array
@@ -25,15 +25,17 @@
 
         /**
          * @param string $pattern
+         * @param Closure $encoding
          *
          * @throws InvalidCharacterForWildcardPattern
          */
-        protected function __construct(string $pattern)
+        protected function __construct(string $pattern, Closure $encoding)
         {
             $skipToken = false;
             $previousToken = null;
             $phrase = '';
             $repeatingCharacters = 0;
+            $encoding($this);
 
             foreach ($this->nextCharacter($pattern) as $i => $token) {
                 if ($skipToken) {
@@ -203,13 +205,14 @@
 
         /**
          * @param string $pattern
+         * @param Closure $encoding
          *
          * @return WildcardPerformer
          * @throws InvalidCharacterForWildcardPattern
          */
-        public static function get(string $pattern): WildcardPerformer
+        public static function get(string $pattern, Closure $encoding): WildcardPerformer
         {
-            return static::$cachedPattern[$pattern] ?? (static::$cachedPattern[$pattern] = new static($pattern));
+            return static::$cachedPattern[$pattern] ?? (static::$cachedPattern[$pattern] = new static($pattern, $encoding));
         }
     }
 }
