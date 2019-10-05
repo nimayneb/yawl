@@ -1,7 +1,9 @@
 <?php namespace JayBeeR\Wildcard\Tests {
 
+    use Exception;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
     use JayBeeR\Wildcard\Failures\InvalidEscapedCharacterForWildcardPattern;
+    use JayBeeR\Wildcard\WildcardGenerator;
     use JayBeeR\Wildcard\WildcardMatcher;
     use PHPUnit\Framework\TestCase;
 
@@ -157,7 +159,7 @@
 
                 84 => ['search\\phrase', '*\\\\phrase', true],
 
-                85 => ['search\\phrase', 'search\\\\p*', true],
+                85 => ['search\\phrase', 'search\\\\p*', true]
             ];
         }
 
@@ -185,6 +187,40 @@
                 92 => ['search\\phrase', '*\\phrase', false],
                 93 => ['search\\phrase', 'search\\p*', false],
             ];
+        }
+
+        /**
+         * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
+         * @throws Exception
+         *
+         * @test
+         */
+        public function matchWildcardForSingleByteWithRandomStringsAndCorrespondingPatternsReturnsTrue()
+        {
+            $this->subject->setSingleByte();
+
+            foreach (WildcardGenerator::getRandomCount(1000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
+                $result = $this->subject->matchWildcard($subject, $wildcard);
+                $this->assertTrue($result, sprintf('%d: <%s> corresponding <%s>', $index, $subject, $wildcard));
+            }
+        }
+
+        /**
+         * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
+         * @throws Exception
+         *
+         * @test
+         */
+        public function matchWildcardForMultiByteWithRandomStringsAndCorrespondingPatternsReturnsTrue()
+        {
+            $this->subject->setMultiByte();
+
+            foreach (WildcardGenerator::getRandomCount(1000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
+                $result = $this->subject->matchWildcard($subject, $wildcard);
+                $this->assertTrue($result, sprintf('%d: <%s> corresponding <%s>', $index, $subject, $wildcard));
+            }
         }
 
         /**

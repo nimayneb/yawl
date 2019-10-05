@@ -1,19 +1,26 @@
 <?php
 
+use JayBeeR\Wildcard\WildcardConverter;
+use JayBeeR\Wildcard\WildcardGenerator;
 use JayBeeR\Wildcard\WildcardMatcher;
 
 require_once '../../vendor/autoload.php';
 require_once 'Benchmarker.inc';
-require_once 'WildcardGenerator.inc';
 
 {
-    $temp = generateRandomWildcards(10);
+    $temp = [];
+
+    foreach (WildcardGenerator::getRandomCount(1000) as $wildcards) {
+        $wildcards['regExp'] = WildcardConverter::convertWildcardToRegularExpression($wildcards['wildcard']);
+        $temp[] = $wildcards;
+    }
+
     $times = 1;
 
     Benchmarker::run(
         'preg_match',
         function () use ($temp) {
-            foreach ($temp as $index => [$subject, $wildcard, $regExp]) {
+            foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard, 'regExp' => $regExp]) {
                 $currentResult = preg_match("/{$regExp}/", $subject);
 
                 if (false === $currentResult) {
@@ -41,7 +48,7 @@ require_once 'WildcardGenerator.inc';
     Benchmarker::run(
         'WildcardMatcher',
         function () use ($temp, $wc) {
-            foreach ($temp as $index => [$subject, $wildcard, $regExp]) {
+            foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
                 if (!$wc->matchWildcard($subject, $wildcard)) {
                     throw new Exception(sprintf('Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>', $wildcard, $subject, $index));
                 }

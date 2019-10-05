@@ -51,8 +51,9 @@
             $canBeZero = true;
             $maxPosition = 0;
             $subjectLength = ($this->strlen)($subject);
+            $dynamicLength = false;
 
-            foreach ($this->getWildcardToken($pattern) as $token) {
+            foreach ($this->getWildcardToken($pattern) as $token => $partialPattern) {
                 if (0 === $subjectLength) {
                     $found = (
                         (Token::ZERO_OR_ONE_CHARACTER === $token)
@@ -67,31 +68,74 @@
                     $subjectLength -= 1;
                     $maxPosition = 0;
                     $canBeZero = true;
+                    $dynamicLength = false;
                 } elseif (Token::ZERO_OR_ONE_CHARACTER === $token) {
                     $maxPosition = 1;
                     $canBeZero = true;
+                    $dynamicLength = false;
                 } elseif (Token::ZERO_OR_MANY_CHARACTERS === $token) {
                     $maxPosition = $subjectLength;
                     $canBeZero = true;
+                    $dynamicLength = true;
                 } elseif (Token::MANY_OF_CHARACTERS === $token) {
                     $maxPosition = $subjectLength;
                     $canBeZero = false;
+                    $dynamicLength = true;
                 } else {
                     if (chr(0) === $token[0]) {
                         $token = $token[1];
                     }
 
-                    $occurrences = 0;
+                    if ($dynamicLength) {
+                        $occurrences = 0;
 
-                    foreach ($this->getPositionOfOccurrence($subject, $token) as $position) {
-                        $occurrences++;
+                        foreach ($this->getPositionOfOccurrence($subject, $token) as $position) {
+                            $occurrences++;
 
+                            if (
+                                ((false === $canBeZero) && (0 === $position))
+                                || ((true === $canBeZero) && (1 === $maxPosition) && (1 < $position))
+                                || ((0 === $maxPosition) && (0 !== $position))
+                            ) {
+                                $occurrences = 0;
+
+                                break;
+                            }
+
+                            $start = $position + ($this->strlen)($token);
+                            $newSubject = ($this->substr)($subject, $start);
+
+                            if ('' !== $partialPattern) {
+                                $result = $this->hasWildcardMatch($newSubject, $partialPattern);
+
+                                if ($result) {
+                                    $subject = '';
+                                    $subjectLength = 0;
+
+                                    break 2;
+                                }
+                            } elseif ('' === $newSubject) {
+                                break 2;
+                            }
+                        }
+
+                        if (0 === $occurrences) {
+                            $subject = '';
+                            $subjectLength = 0;
+                            $found = false;
+
+                            break;
+                        }
+                    } else {
                         if (
-                            ((false === $canBeZero) && (0 === $position))
+                            (false === ($position = ($this->strpos)($subject, $token)))
+                            || ((false === $canBeZero) && (0 === $position))
                             || ((true === $canBeZero) && (1 === $maxPosition) && (1 < $position))
                             || ((0 === $maxPosition) && (0 !== $position))
                         ) {
-                            $occurrences = 0;
+                            $subject = '';
+                            $subjectLength = 0;
+                            $found = false;
 
                             break;
                         }
@@ -99,16 +143,6 @@
                         $start = $position + ($this->strlen)($token);
                         $subject = ($this->substr)($subject, $start);
                         $subjectLength -= $start;
-
-                        break;
-                    }
-
-                    if (0 === $occurrences) {
-                        $subject = '';
-                        $subjectLength = 0;
-                        $found = false;
-
-                        break;
                     }
 
                     $maxPosition = 0;
@@ -160,7 +194,7 @@
                 if (0 < $position) {
                     $previousToken = null;
 
-                    yield ($this->substr)($pattern, 0, $position);
+                    yield ($this->substr)($pattern, 0, $position) => ($this->substr)($pattern, $position);
                 }
 
                 $pattern = ($this->substr)($pattern, $position + 1);
@@ -199,21 +233,21 @@
                     if ((!isset($pattern[0])) || (!$this->hasNextToken($escapeChar = $pattern[0]))) {
                         throw new InvalidEscapedCharacterForWildcardPattern($pattern, $position);
                     } else {
-                        yield chr(0) . $escapeChar;
-
                         $pattern = ($this->substr)($pattern, 1);
+
+                        yield chr(0) . $escapeChar => $pattern;
                     }
 
                     continue;
                 }
 
-                yield $token;
+                yield $token => $pattern;
             }
 
             // search phrase
 
             if (0 < ($this->strlen)($pattern)) {
-                yield $pattern;
+                yield $pattern => '';
             }
         }
 
