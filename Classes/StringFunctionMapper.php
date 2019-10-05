@@ -25,7 +25,7 @@
 
             $this->strlen = fn (string $string) => strlen($string);
             $this->strpos = fn (string $haystack, string $needle, int $offset = 0) => strpos($haystack, $needle, $offset);
-            $this->substr = fn (string $string, int $start, int $length = null) => substr($string, $start, $length);
+            $this->substr = fn (string $string, int $start, int $length = null) => substr(...func_get_args());
             $this->chr = fn (string $ascii) => chr($ascii);
         }
 
