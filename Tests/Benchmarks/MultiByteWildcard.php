@@ -10,28 +10,14 @@ require_once '../../vendor/autoload.php';
 require_once 'Benchmarker.inc';
 
 {
-    $temp = WildcardMatcherTest::WILDCARD_VARIANTS;
-
-    foreach ($temp as $index => [$subject, $wildcard, $expectedResult]) {
-        $temp[$index] = [
-            $subject,
-            $wildcard,
-            WildcardConverter::convertWildcardToRegularExpression($wildcard),
-            $expectedResult
-        ];
-    }
-
-    $times = 1;
+    $temp = generateRandomWildcards(10);
+    $times = 1000;
 
     Benchmarker::run(
         'mb_ereg_match',
         function() use($temp) {
-            foreach ($temp as $index => [$subject, $wildcard, $regExp, $result]) {
-                $currentResult = mb_ereg_match($regExp, $subject);
-
-                if ($result !== $currentResult) {
-                   throw new Exception(sprintf('Invalid result for %s found!', $index));
-                }
+            foreach ($temp as $index => [$subject, $wildcard, $regExp]) {
+                mb_ereg_match($regExp, $subject);
             }
         },
         $times
@@ -49,16 +35,14 @@ require_once 'Benchmarker.inc';
     Benchmarker::run(
         'WildcardMatcher',
         function() use($temp, $wc) {
-            foreach ($temp as $index => [$subject, $wildcard, $regExp, $result]) {
-                if ($result !== $wc->hasWildcardMatch($subject, $wildcard)) {
-                    throw new Exception(sprintf('Invalid result for %s found!', $index));
-                }
+            foreach ($temp as $index => [$subject, $wildcard, $regExp]) {
+                $wc->matchWildcard($subject, $wildcard);
             }
         },
         $times
     );
 
-    Benchmarker::run(
+    /*Benchmarker::run(
         'WildcardPerformer',
         function() use($temp, $wc) {
             foreach ($temp as $index => [$subject, $wildcard, $regExp, $result]) {
@@ -70,7 +54,9 @@ require_once 'Benchmarker.inc';
             }
         },
         $times
-    );
+    );*/
 
     Benchmarker::report();
+
+    echo "\n(" . $wc->getCachedSize() . ")\n";
 }

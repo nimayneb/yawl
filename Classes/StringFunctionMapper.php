@@ -5,17 +5,22 @@
      * See LICENSE.txt that was shipped with this package.
      */
 
-    use Closure;
-
     trait StringFunctionMapper
     {
-        protected Closure $strlen;
+        /**
+         * @var callable
+         */
+        protected $strlen;
 
-        protected Closure $strpos;
+        /**
+         * @var callable
+         */
+        protected $strpos;
 
-        protected Closure $substr;
-
-        protected Closure $chr;
+        /**
+         * @var callable
+         */
+        protected $substr;
 
         protected ?string $encoding = null;
 
@@ -23,10 +28,9 @@
         {
             $this->encoding = null;
 
-            $this->strlen = fn (string $string) => strlen($string);
-            $this->strpos = fn (string $haystack, string $needle, int $offset = 0) => strpos($haystack, $needle, $offset);
-            $this->substr = fn (string $string, int $start, int $length = null) => substr(...func_get_args());
-            $this->chr = fn (string $ascii) => chr($ascii);
+            $this->strlen = 'strlen';
+            $this->strpos = 'strpos';
+            $this->substr = 'substr';
         }
 
         public function setMultiByte(string $encoding = 'UTF-8'): void
@@ -36,7 +40,6 @@
             $this->strlen = fn (string $string) => mb_strlen($string, $this->encoding);
             $this->strpos = fn (string $haystack, string $needle, int $offset = 0) => mb_strpos($haystack, $needle, $offset, $this->encoding);
             $this->substr = fn (string $string, int $start, int $length = null) => mb_substr($string, $start, $length, $this->encoding);
-            $this->chr = fn (string $cp) => mb_chr($cp, $this->encoding);
         }
     }
 }

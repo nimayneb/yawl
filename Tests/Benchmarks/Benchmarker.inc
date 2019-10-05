@@ -9,13 +9,13 @@ class Benchmarker
 {
     protected static $results = [];
 
-    public static function run(string $label, Closure $handler, int $times = 0)
+    public static function run(string $label, Closure $handler, int $times = 1)
     {
         echo sprintf('  Benchmarking <%s> ...', $label) . "\n";
 
         $start = microtime(true);
 
-        for ($i = 0; $i < $times; $i++) {
+        for ($i = 1; $i <= $times; $i++) {
             $handler();
         }
 

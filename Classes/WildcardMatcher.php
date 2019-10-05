@@ -13,6 +13,8 @@
     {
         use StringFunctionMapper;
 
+        protected array $cachedResults = [];
+
         /**
          * @param string $subject
          * @param string $pattern
@@ -21,15 +23,37 @@
          * @throws InvalidCharacterForWildcardPattern
          * @throws InvalidEscapedCharacterForWildcardPattern
          */
-        public function hasWildcardMatch(string $subject, string $pattern): bool
+        public function matchWildcard(string $subject, string $pattern): bool
+        {
+            return $this->cachedResults[$pattern][$subject]
+                ?? ($this->cachedResults[$pattern][$subject] = $this->hasWildcardMatch($subject, $pattern));
+        }
+
+        /**
+         * @return int
+         */
+        public function getCachedSize(): int
+        {
+            return count($this->cachedResults);
+        }
+
+        /**
+         * @param string $subject
+         * @param string $pattern
+         *
+         * @return bool
+         * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
+         */
+        protected function hasWildcardMatch(string $subject, string $pattern): bool
         {
             $found = true;
             $canBeZero = true;
-            $neededLength = 0;
-            $maxLength = ($this->strlen)($subject);
+            $maxPosition = 0;
+            $subjectLength = ($this->strlen)($subject);
 
             foreach ($this->getWildcardToken($pattern) as $token) {
-                if (0 === $maxLength) {
+                if (0 === $subjectLength) {
                     $found = (
                         (Token::ZERO_OR_ONE_CHARACTER === $token)
                         || (Token::ZERO_OR_MANY_CHARACTERS === $token)
@@ -40,51 +64,80 @@
 
                 if (Token::ONE_CHARACTER === $token) {
                     $subject = ($this->substr)($subject, 1);
-                    $maxLength -= 1;
-
-                    $neededLength = 0;
+                    $subjectLength -= 1;
+                    $maxPosition = 0;
                     $canBeZero = true;
                 } elseif (Token::ZERO_OR_ONE_CHARACTER === $token) {
-                    $neededLength = 1;
+                    $maxPosition = 1;
                     $canBeZero = true;
                 } elseif (Token::ZERO_OR_MANY_CHARACTERS === $token) {
-                    $neededLength = $maxLength;
+                    $maxPosition = $subjectLength;
                     $canBeZero = true;
                 } elseif (Token::MANY_OF_CHARACTERS === $token) {
-                    $neededLength = $maxLength;
+                    $maxPosition = $subjectLength;
                     $canBeZero = false;
                 } else {
-                    if (($this->chr)(0) === $token[0]) {
+                    if (chr(0) === $token[0]) {
                         $token = $token[1];
                     }
 
-                    if (
-                        (false === ($position = ($this->strpos)($subject, $token)))
-                        || ((false === $canBeZero) && (0 === $position))
-                        || ((true === $canBeZero) && (1 === $neededLength) && (1 < $position))
-                        || ((0 === $neededLength) && (0 !== $position))
-                    ) {
+                    $occurrences = 0;
+
+                    foreach ($this->getPositionOfOccurrence($subject, $token) as $position) {
+                        $occurrences++;
+
+                        if (
+                            ((false === $canBeZero) && (0 === $position))
+                            || ((true === $canBeZero) && (1 === $maxPosition) && (1 < $position))
+                            || ((0 === $maxPosition) && (0 !== $position))
+                        ) {
+                            $occurrences = 0;
+
+                            break;
+                        }
+
+                        $start = $position + ($this->strlen)($token);
+                        $subject = ($this->substr)($subject, $start);
+                        $subjectLength -= $start;
+
+                        break;
+                    }
+
+                    if (0 === $occurrences) {
                         $subject = '';
-                        $maxLength = 0;
+                        $subjectLength = 0;
                         $found = false;
 
                         break;
                     }
 
-                    $start = $position + ($this->strlen)($token);
-                    $subject = ($this->substr)($subject, $start);
-                    $maxLength -= $start;
-
-                    $neededLength = 0;
+                    $maxPosition = 0;
                     $canBeZero = true;
                 }
             }
 
-            if (('' !== $subject) && (0 !== $maxLength)) {
-                $found = ($maxLength <= $neededLength);
+            if (('' !== $subject) && (0 !== $subjectLength)) {
+                $found = ($subjectLength <= $maxPosition);
             }
 
             return $found;
+        }
+
+        /**
+         * @param string $haystack
+         * @param string $needle
+         *
+         * @return Generator
+         */
+        protected function getPositionOfOccurrence(string $haystack, string $needle): Generator
+        {
+            $lastPosition = 0;
+
+            while (false !== ($lastPosition = ($this->strpos)($haystack, $needle, $lastPosition))) {
+                yield $lastPosition;
+
+                $lastPosition = $lastPosition + ($this->strlen)($needle);
+            }
         }
 
         /**
@@ -146,7 +199,7 @@
                     if ((!isset($pattern[0])) || (!$this->hasNextToken($escapeChar = $pattern[0]))) {
                         throw new InvalidEscapedCharacterForWildcardPattern($pattern, $position);
                     } else {
-                        yield ($this->chr)(0) . $escapeChar;
+                        yield chr(0) . $escapeChar;
 
                         $pattern = ($this->substr)($pattern, 1);
                     }
