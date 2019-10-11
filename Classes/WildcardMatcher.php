@@ -104,9 +104,7 @@
                             $newSubject = ($this->substr)($subject, $start);
 
                             if ('' !== $partialPattern) {
-                                $result = $this->hasWildcardMatch($newSubject, $partialPattern);
-
-                                if ($result) {
+                                if ($this->hasWildcardMatch($newSubject, $partialPattern)) {
                                     $subject = '';
                                     $subjectLength = 0;
 
@@ -120,13 +118,11 @@
                             }
                         }
 
-                        if (0 === $occurrences) {
-                            $subject = '';
-                            $subjectLength = 0;
-                            $found = false;
+                        $subject = '';
+                        $subjectLength = 0;
+                        $found = false;
 
-                            break;
-                        }
+                        break;
                     } else {
                         if (
                             (false === ($position = ($this->strpos)($subject, $token)))
@@ -152,7 +148,7 @@
             }
 
             if (('' !== $subject) && (0 !== $subjectLength)) {
-                $found = ($subjectLength <= $maxPosition);
+                $found = (0 !== $subjectLength) && ($subjectLength <= $maxPosition);
             }
 
             return $found;
@@ -233,6 +229,7 @@
                 if (Token::ESCAPE_CHAR === $token) {
                     if ((isset($pattern[0])) && ($this->hasNextToken($escapeChar = $pattern[0]))) {
                         $pattern = ($this->substr)($pattern, 1);
+
                         yield chr(0) . $escapeChar => $pattern;
                     } else {
                         throw new InvalidEscapedCharacterForWildcardPattern($pattern, $position);
@@ -259,9 +256,9 @@
         protected function hasNextToken(string $character): bool
         {
             return (
-                (Token::ZERO_OR_MANY_CHARACTERS === $character[0])
-                || (Token::ONE_CHARACTER === $character[0])
-                || (Token::ESCAPE_CHAR === $character[0])
+                (Token::ZERO_OR_MANY_CHARACTERS === $character)
+                || (Token::ONE_CHARACTER === $character)
+                || (Token::ESCAPE_CHAR === $character)
             );
         }
 
