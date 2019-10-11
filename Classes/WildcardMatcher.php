@@ -72,7 +72,7 @@
                 } elseif (Token::ZERO_OR_ONE_CHARACTER === $token) {
                     $maxPosition = 1;
                     $canBeZero = true;
-                    $dynamicLength = false;
+                    $dynamicLength = true;
                 } elseif (Token::ZERO_OR_MANY_CHARACTERS === $token) {
                     $maxPosition = $subjectLength;
                     $canBeZero = true;
@@ -97,9 +97,7 @@
                                 || ((true === $canBeZero) && (1 === $maxPosition) && (1 < $position))
                                 || ((0 === $maxPosition) && (0 !== $position))
                             ) {
-                                $occurrences = 0;
-
-                                break;
+                                continue;
                             }
 
                             $start = $position + ($this->strlen)($token);
@@ -115,6 +113,9 @@
                                     break 2;
                                 }
                             } elseif ('' === $newSubject) {
+                                $subject = '';
+                                $subjectLength = 0;
+
                                 break 2;
                             }
                         }
@@ -230,12 +231,11 @@
                 // backslash character: \
 
                 if (Token::ESCAPE_CHAR === $token) {
-                    if ((!isset($pattern[0])) || (!$this->hasNextToken($escapeChar = $pattern[0]))) {
-                        throw new InvalidEscapedCharacterForWildcardPattern($pattern, $position);
-                    } else {
+                    if ((isset($pattern[0])) && ($this->hasNextToken($escapeChar = $pattern[0]))) {
                         $pattern = ($this->substr)($pattern, 1);
-
                         yield chr(0) . $escapeChar => $pattern;
+                    } else {
+                        throw new InvalidEscapedCharacterForWildcardPattern($pattern, $position);
                     }
 
                     continue;

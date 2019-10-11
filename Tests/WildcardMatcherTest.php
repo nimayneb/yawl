@@ -153,9 +153,9 @@
                 79 => ['search\\phrase', '*\\\\*', true],
 
                 80 => ['search\\*', '*\\*', true], // matches <search\> with wildcard, then matches escaped <*>
-                81 => ['search\\*', '*\\\\*', true], // matches <search> with wildcard, then matches escaped </>, then matches <*> with wildcard
-                82 => ['search\\*', '*\\\\\\*', true], // matches <search> with wildcard, then matches escaped </>, then matches escaped <*>
-                83 => ['search\\*', '*\\\\\\\\*', false], // matches <search> with wildcard, then matches escaped </>, then not matches escaped </> - ignore rest of "*"
+                81 => ['search\\*', '*\\\\*', true], // matches <search> with wildcard, then matches escaped <\>, then matches <*> with wildcard
+                82 => ['search\\*', '*\\\\\\*', true], // matches <search> with wildcard, then matches escaped <\>, then matches escaped <*>
+                83 => ['search\\*', '*\\\\\\\\*', false], // matches <search> with wildcard, then matches escaped <\>, then not matches escaped <\> - ignore rest of "*"
 
                 84 => ['search\\phrase', '*\\\\phrase', true],
 
@@ -200,7 +200,7 @@
         {
             $this->subject->setSingleByte();
 
-            foreach (WildcardGenerator::getRandomCount(1000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
+            foreach (WildcardGenerator::getRandomCount(2000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
                 $result = $this->subject->matchWildcard($subject, $wildcard);
                 $this->assertTrue($result, sprintf('%d: <%s> corresponding <%s>', $index, $subject, $wildcard));
             }
@@ -217,7 +217,7 @@
         {
             $this->subject->setMultiByte();
 
-            foreach (WildcardGenerator::getRandomCount(1000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
+            foreach (WildcardGenerator::getRandomCount(2000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
                 $result = $this->subject->matchWildcard($subject, $wildcard);
                 $this->assertTrue($result, sprintf('%d: <%s> corresponding <%s>', $index, $subject, $wildcard));
             }
