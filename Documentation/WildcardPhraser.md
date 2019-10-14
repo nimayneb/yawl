@@ -20,13 +20,13 @@ The strategy behind it is very simple:
 
 Every token and phrase you have in a wildcard pattern will be split in a array structure with following information:
 
- Token  | Minimum position | Maximum position
-:------:|------------------|------------------------
- *      | 0                | -1 (length of subject) 
- ?      | 1                | 1 
- **     | 1                | -1 (length of subject)
- ?*     | 0                | 1
- (none) | 0                | 0
+| Token  | Minimum position | Maximum position       |
+|:------:|------------------|------------------------|
+| *      | 0                | -1 (length of subject) | 
+| ?      | 1                | 1                      | 
+| **     | 1                | -1 (length of subject) |
+| ?*     | 0                | 1                      |
+| (none) | 0                | 0                      |
 
 The array is structured like this:
 
@@ -44,10 +44,10 @@ Implementation
 
 The following number of implementation of PHP's internal string function is needed:
 
- Function | implements
-----------|------------
- strlen   | 5
- substr   | 4
- strpos   | 1
- chr      | 2
+| Function | implements |
+|----------|------------|
+| strlen   | 5          |
+| substr   | 4          |
+| strpos   | 1          |
+| chr      | 2          |
  

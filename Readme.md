@@ -48,35 +48,35 @@ When we benchmark several methods to match a fitting phrase (1000 random strings
 
 *Single Byte:*
 
- Benchmark           | Time       | Reference | Difference   
----------------------|------------|:---------:|:-----------:
-   `WildcardPhraser` | 0.00353789 |   100 %   | -
-        `preg_match` | 0.01223898 |    71 %   | 71 %
-   `WildcardMatcher` | 0.01635289 |    25 %   | 78 %
+| Benchmark           | Time       | Reference | Difference  |   
+|---------------------|------------|:---------:|:-----------:|
+|   `WildcardPhraser` | 0.00353789 |   100 %   | -           |
+|        `preg_match` | 0.01223898 |    71 %   | 71 %        |
+|   `WildcardMatcher` | 0.01635289 |    25 %   | 78 %        |
 
 
 *Multi Byte (like Unicode):*
 
- Benchmark           | Time       | Reference | Difference  
----------------------|------------|:---------:|:-----------:
-   `WildcardPhraser` | 0.00660086 |   100 %   | - 
-     `mb_ereg_match` | 0.01290488 |    48 %   | 48 % 
-   `WildcardMatcher` | 0.03252506 |    60 %   | 79 % 
+| Benchmark           | Time       | Reference | Difference  |  
+|---------------------|------------|:---------:|:-----------:|
+|   `WildcardPhraser` | 0.00660086 |   100 %   | -           | 
+|     `mb_ereg_match` | 0.01290488 |    48 %   | 48 %        | 
+|   `WildcardMatcher` | 0.03252506 |    60 %   | 79 %        | 
    
    
 Wildcard variants
 =================
 
- None character | One character | Two characters | Token
-----------------|---------------|----------------|---------------
-              0 |             0 |              0 | (null)
-              0 |             0 |              1 | ??
-              0 |             1 |              0 | ?
-              0 |             1 |              1 | **
-              1 |             0 |              0 | (empty string)
-              1 |             0 |              1 | ??** (draft)
-              1 |             1 |              0 | ?*
-              1 |             1 |              1 | *
+| None character | One character | Two characters | Token          |
+|----------------|---------------|----------------|----------------|
+|              0 |             0 |              0 | (null)         |
+|              0 |             0 |              1 | ??             |
+|              0 |             1 |              0 | ?              |
+|              0 |             1 |              1 | **             |
+|              1 |             0 |              0 | (empty string) |
+|              1 |             0 |              1 | ??** (draft)   |
+|              1 |             1 |              0 | ?*             |
+|              1 |             1 |              1 | *              |
 
 
 Possible valid pattern
@@ -104,20 +104,20 @@ Escaping
 
 Please beware of this escaping scenarios:
 
- Subject        | Pattern       | Explanation
-----------------|---------------|----------------------------------------------------------------------------------------------------------------
- `search\\*`    | `*\\*`        | matches `search\ ` with wildcard, then matches escaped `*`
- `search\\*`    | `*\\\\*`      | matches `search` with wildcard, then matches escaped `\ `, then matches `*` with wildcard
- `search\\*`    | `*\\\\\\*`    | matches `search` with wildcard, then matches escaped `\ `, then matches escaped `*`
- `search\\*`    | `*\\\\\\\\*`  | matches `search` with wildcard, then matches escaped `\ `, then not matches escaped `\ ` - ignore rest of `*`
+| Subject        | Pattern       | Explanation                                                                                                    |
+|----------------|---------------|----------------------------------------------------------------------------------------------------------------|
+| `search\\*`    | `*\\*`        | matches `search\ ` with wildcard, then matches escaped `*`                                                     |
+| `search\\*`    | `*\\\\*`      | matches `search` with wildcard, then matches escaped `\ `, then matches `*` with wildcard                      |
+| `search\\*`    | `*\\\\\\*`    | matches `search` with wildcard, then matches escaped `\ `, then matches escaped `*`                            |
+| `search\\*`    | `*\\\\\\\\*`  | matches `search` with wildcard, then matches escaped `\ `, then not matches escaped `\ ` - ignore rest of `*`  |
 
 
 Further explanation:
 
- programmatic   | internal  | after escaping
-----------------|-----------|----------------
- `\\`           | `\ `      | `\ `
- `\\\\`         | `\\`      | `\ `
+| programmatic   | internal  | after escaping |
+|----------------|-----------|----------------|
+| `\\`           | `\ `      | `\ `           |
+| `\\\\`         | `\\`      | `\ `           |
 
 Repeating phrases
 -----------------

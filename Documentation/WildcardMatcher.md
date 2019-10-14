@@ -27,12 +27,12 @@ Implementation
 
 The following number of implementation of PHP's internal string function is needed:
 
- Function | implements
-----------|------------
- strlen   | 9
- substr   | 5
- strpos   | 5
- chr      | 2
+| Function | implements |
+|----------|------------|
+| strlen   | 9          |
+| substr   | 5          |
+| strpos   | 5          |
+| chr      | 2          |
  
 
 Invalid wildcards
@@ -53,17 +53,17 @@ Single call performance
 The WildcardMatcher trait property performs well (better than the corresponding "regular expression" with `preg_match`),
 when called for the first time. Therefore, use this pattern only for known cases which has only single calls:
 
- Benchmark         | Time       | Reference | Difference   
--------------------|------------|:---------:|:-----------:
- `WildcardMatcher` | 0.00010991 |   100 %   | - 
- `WildcardPhraser` | 0.00015211 |    27 %   | 27 % 
-      `preg_match` | 0.00017595 |    13 %   | 37 % 
+| Benchmark         | Time       | Reference | Difference  |   
+|-------------------|------------|:---------:|:-----------:|
+| `WildcardMatcher` | 0.00010991 |   100 %   | -           | 
+| `WildcardPhraser` | 0.00015211 |    27 %   | 27 %        | 
+|      `preg_match` | 0.00017595 |    13 %   | 37 %        | 
 
 
 But compared to `mb_ereg_match` we lost this advantage:
 
- Benchmark         | Time       | Reference | Difference 
--------------------|------------|:---------:|:-----------:
-   `mb_ereg_match` | 0.00005698 |   100 %   | -
- `WildcardMatcher` | 0.00014687 |    61 %   | 61 %
- `WildcardPhraser` | 0.00020194 |    27 %   | 71 %
+| Benchmark         | Time       | Reference | Difference  | 
+|-------------------|------------|:---------:|:-----------:|
+|   `mb_ereg_match` | 0.00005698 |   100 %   | -           |
+| `WildcardMatcher` | 0.00014687 |    61 %   | 61 %        |
+| `WildcardPhraser` | 0.00020194 |    27 %   | 71 %        |
