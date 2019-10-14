@@ -152,3 +152,6 @@ Wishlist
 
 - Caching interface (Redis performance, memory allocation)
 - Combine Matcher and Phraser (two advantages in one)
+- New pattern `??**` (0 or 2 characters) or `?????**` (0 or 5 characters)
+- [Glob support](https://en.wikipedia.org/wiki/Glob_\(programming\))
+    - Example: `[abcdef0123456789]`, `[0-9a-f]`, `[!a-z]`
