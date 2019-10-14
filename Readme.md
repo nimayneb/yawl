@@ -64,7 +64,7 @@ When we benchmark several methods to match a fitting phrase (1000 random strings
    
    
 Wildcard variants
-=================
+-----------------
 
 | None character | One character | Two characters | Token          |
 |----------------|---------------|----------------|----------------|
