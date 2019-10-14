@@ -7,7 +7,7 @@
 
 class Benchmarker
 {
-    protected static $results = [];
+    protected static array $results = [];
 
     public static function run(string $label, Closure $handler, int $times = 1)
     {
@@ -16,7 +16,7 @@ class Benchmarker
         $start = microtime(true);
 
         for ($i = 1; $i <= $times; $i++) {
-            $handler();
+            $handler($i);
         }
 
         $stop = microtime(true);

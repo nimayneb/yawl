@@ -11,7 +11,7 @@
          *
          * @return string
          */
-        protected static function getRandomString(int $length, string $availableCharacters): string
+        public static function getRandomString(int $length, string $availableCharacters): string
         {
             return substr(str_shuffle(str_repeat($x = $availableCharacters, ceil($length / strlen($x)))), 1, $length);
         }

@@ -10,17 +10,17 @@
         /**
          * @var callable
          */
-        protected $strlen;
+        public $strlen;
 
         /**
          * @var callable
          */
-        protected $strpos;
+        public $strpos;
 
         /**
          * @var callable
          */
-        protected $substr;
+        public $substr;
 
         protected ?string $encoding = null;
 
@@ -40,6 +40,13 @@
             $this->strlen = fn (string $string) => mb_strlen($string, $this->encoding);
             $this->strpos = fn (string $haystack, string $needle, int $offset = 0) => mb_strpos($haystack, $needle, $offset, $this->encoding);
             $this->substr = fn (string $string, int $start, int $length = null) => mb_substr($string, $start, $length, $this->encoding);
+        }
+
+        public function adopt(object $object)
+        {
+            $this->substr = $object->substr;
+            $this->strlen = $object->strlen;
+            $this->strpos = $object->strpos;
         }
     }
 }
