@@ -28,7 +28,7 @@ Table of content
 5. Escaping 
 6. Repeating phrases
 7. Caching
-8. Wishlist
+8. Wish list
 
 API:
 
@@ -147,8 +147,8 @@ To help us to improve also performance, we use a simple key-value caching.
 This can be decapsulated, so that we can provide a Redis implementation for example.
 
 
-Wishlist
---------
+Wish list
+---------
 
 - Caching interface (Redis performance, memory allocation)
 - Combine Matcher and Phraser (two advantages in one)
