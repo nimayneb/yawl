@@ -21,15 +21,14 @@ huge performance (we lost)!
 Table of content
 ----------------
 
-1. Problem
-2. Benchmark
-3. Wildcard variants
-5. Possible valid pattern
-6. Invalid pattern
-7. Escaping 
-8. Repeating phrases
-9. Caching
-10. Wishlist
+1. Benchmark
+2. Wildcard variants
+3. Possible valid pattern
+4. Invalid pattern
+5. Escaping 
+6. Repeating phrases
+7. Caching
+8. Wishlist
 
 API:
 
