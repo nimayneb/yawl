@@ -40,7 +40,7 @@ Invalid wildcards
 
 Invalid wildcard pattern can not be fully recognized unless the entire pattern has been used:
 
- "search phrase" => "sea??ch*****"
+    search phrase => sea??ch*****
                           ^   ^
         pattern not found |   | invalid pattern (not recognized)
 
