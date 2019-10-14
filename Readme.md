@@ -132,7 +132,7 @@ necessary to return to a position of previous token (`*`) and continue to try fr
 Caching
 -------
 
-The regular expression extension has a caching strategy to improve performance. The second time the same pattern is
+The regular expression extension has a caching and compiling strategy to improve performance. The second time the same pattern is
 called, a tremendous increase in performance is achieved.
 
 To help us to improve also performance, we use a simple key-value caching.
