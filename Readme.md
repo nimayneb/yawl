@@ -156,3 +156,9 @@ Wish list
 - New pattern `??**` (0 or 2 characters) or `?????**` (0 or 5 characters)
 - [Glob support](https://en.wikipedia.org/wiki/Glob_\(programming\))
     - Example: `[abcdef0123456789]`, `[0-9a-f]`, `[!a-z]`
+    - Use in YAWL:
+        - `[0-9a-f]?` (one times)
+        - `[0-9a-f]?*` (zero or one times)
+        - `[0-9a-f]*` (zero or N times)
+        - `[0-9a-f]**` (one or N times)
+        - `[0-9a-f]x` (one times then follows `x`)
