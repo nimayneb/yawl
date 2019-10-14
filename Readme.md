@@ -101,7 +101,7 @@ Escaping
         \?
         \*
 
-Please beware of this escaping scenarios:
+Please note of this escaping scenarios:
 
 | Subject        | Pattern       | Explanation                                                                                                    |
 |----------------|---------------|----------------------------------------------------------------------------------------------------------------|
