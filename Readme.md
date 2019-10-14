@@ -29,6 +29,7 @@ Table of content
 6. Repeating phrases
 7. Caching
 8. Wish list
+9. Appendix
 
 API:
 
@@ -150,9 +151,10 @@ This can be decapsulated, so that we can provide a Redis implementation for exam
 Wish list
 ---------
 
-- Caching interface (Redis performance, memory allocation)
+- Remove recursive call of `WildcardPhrase::computePhrases` (see [Wikipedia - Matching wildcards](https://en.wikipedia.org/wiki/Matching_wildcards))
+- Remove of `StringFunctionMapper` (too slow)
 - Combine Matcher and Phraser (two advantages in one)
-- Remove of StringFunctionMapper (too slow)
+- Caching interface (Redis performance, memory allocation)
 - New pattern `??**` (0 or 2 characters) or `?????**` (0 or 5 characters)
 - [Glob support](https://en.wikipedia.org/wiki/Glob_\(programming\))
     - Example: `[abcdef0123456789]`, `[0-9a-f]`, `[!a-z]`
@@ -162,3 +164,17 @@ Wish list
         - `[0-9a-f]*` (zero or N times)
         - `[0-9a-f]**` (one or N times)
         - `[0-9a-f]x` (one times then follows `x`)
+        
+        
+Appendix
+--------
+
+Common Algorithms:
+- [Wildcard matching algorithms by "Alessandro Cantatore"](http://xoomer.virgilio.it/acantato/dev/wildcard/wildmatch.html)
+
+Non-recursive Algorithms:
+- [Matching Wildcards: An Improved Algorithm for Big Data by "Kirk J. Krauss"](http://developforperformance.com/MatchingWildcards_AnImprovedAlgorithmForBigData.html)
+
+Recursive Algorithms:
+- [Compares a filename or pathname to a pattern by "Apple"](https://opensource.apple.com/source/Libc/Libc-167/gen.subproj/fnmatch.c.auto.html)
+- [Stackoverflow - Recursive solutions for glob pattern matching by "Siler"](https://stackoverflow.com/questions/30823596/recursive-solutions-for-glob-pattern-matching)
