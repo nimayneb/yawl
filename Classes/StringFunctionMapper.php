@@ -45,9 +45,12 @@ namespace JayBeeR\Wildcard {
         {
             $this->encoding = $encoding;
 
-            $this->strlen = fn(string $string) => mb_strlen($string, $this->encoding);
-            $this->strpos = fn(string $haystack, string $needle, int $offset = 0) => mb_strpos($haystack, $needle, $offset, $this->encoding);
-            $this->substr = fn(string $string, int $start, int $length = null) => mb_substr($string, $start, $length, $this->encoding);
+            $this->strlen = fn(string $string)
+                => mb_strlen($string, $this->encoding);
+            $this->strpos = fn(string $haystack, string $needle, int $offset = 0)
+                => mb_strpos($haystack, $needle, $offset, $this->encoding);
+            $this->substr = fn(string $string, int $start, int $length = null)
+                => mb_substr($string, $start, $length, $this->encoding);
         }
 
         /**
