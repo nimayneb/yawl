@@ -1,6 +1,8 @@
 YAWL - Yet another wildcard library
 ===================================
 
+[![Build Status](https://travis-ci.org/nimayneb/yawl.svg?branch=master)](https://travis-ci.org/nimayneb/yawl)
+
 This is a library with classes for any wildcard implementation that finds pattern with * (asterisk) and ? (query) token.
 
 
@@ -63,20 +65,32 @@ When we benchmark several methods to match a fitting phrase (1000 random strings
 |     `mb_ereg_match` | 0.01290488 |    48 %   | 48 %        | 
 |   `WildcardMatcher` | 0.03252506 |    60 %   | 79 %        | 
    
-   
+
+Internal PHP functions comparison
+---------------------------------
+
+| Function   | WildcardMatcher | WildcardPhraser | 
+|------------|-----------------|-----------------|
+| strlen     | 9               | 5 (-4)          |
+| substr     | 5               | 4 (-1)          |
+| strpos     | 5               | 1 (-4)          |
+| chr        | 2               | 2 (0)           |
+| Conditions | 57              | 13 (-44)        |
+ 
+
 Wildcard variants
 -----------------
 
-| None character | One character | Two characters | Token          |
-|----------------|---------------|----------------|----------------|
-|              0 |             0 |              0 | (null)         |
-|              0 |             0 |              1 | ??             |
-|              0 |             1 |              0 | ?              |
-|              0 |             1 |              1 | **             |
-|              1 |             0 |              0 | (empty string) |
-|              1 |             0 |              1 | ??** (draft)   |
-|              1 |             1 |              0 | ?*             |
-|              1 |             1 |              1 | *              |
+| None character | One character | More characters | Token          |
+|----------------|---------------|-----------------|----------------|
+|              0 |             0 |               0 | (null)         |
+|              0 |             0 |               1 | ??             |
+|              0 |             1 |               0 | ?              |
+|              0 |             1 |               1 | **             |
+|              1 |             0 |               0 | (empty string) |
+|              1 |             0 |               1 | ??** (draft)   |
+|              1 |             1 |               0 | ?*             |
+|              1 |             1 |               1 | *              |
 
 
 Possible valid pattern

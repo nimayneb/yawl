@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Wildcard\Tests {
+<?php  declare(strict_types=1);
+
+namespace JayBeeR\Wildcard\Tests\Unit {
 
     use Exception;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;

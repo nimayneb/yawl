@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use JayBeeR\Wildcard\WildcardConverter;
 use JayBeeR\Wildcard\WildcardFactory;
@@ -6,7 +6,6 @@ use JayBeeR\Wildcard\WildcardGenerator;
 use JayBeeR\Wildcard\WildcardMatcher;
 
 require_once '../../vendor/autoload.php';
-require_once 'Benchmarker.inc';
 
 {
     $temp = [];
@@ -25,7 +24,7 @@ require_once 'Benchmarker.inc';
 
     $times = 1;
 
-    Benchmarker::run(
+    \JayBeeR\Gists\Benchmark::run(
         'mb_ereg_match',
         function() use($temp) {
             foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard, 'regExp' => $regExp]) {
@@ -46,7 +45,7 @@ require_once 'Benchmarker.inc';
         }
     };
 
-    Benchmarker::run(
+    \JayBeeR\Gists\Benchmark::run(
         'WildcardMatcher',
         function() use($temp, $wc) {
             foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
@@ -58,7 +57,7 @@ require_once 'Benchmarker.inc';
         $times
     );
 
-    Benchmarker::run(
+    \JayBeeR\Gists\Benchmark::run(
         'WildcardPerformer',
         function() use($temp, $wc, $factory) {
             foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
@@ -72,7 +71,7 @@ require_once 'Benchmarker.inc';
         $times
     );
 
-    Benchmarker::report();
+    \JayBeeR\Gists\Benchmark::report();
 
     echo "\n(" . $wc->getCachedSize() . ")\n";
 }

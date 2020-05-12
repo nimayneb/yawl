@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Wildcard {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Wildcard {
 
     use Generator;
 
@@ -10,16 +12,31 @@
 
         protected array $phrases = [];
 
+        /**
+         * @param array $phrases
+         */
         protected function __construct(array $phrases)
         {
             $this->phrases = array_values($phrases);
         }
 
+        /**
+         * @param string $subject
+         *
+         * @return bool
+         */
         public function match(string $subject): bool
         {
-            return $this->cachedResults[$subject] ?? $this->cachedResults[$subject] = $this->computePhrases($subject, 0);
+            return $this->cachedResults[$subject]
+                ?? $this->cachedResults[$subject] = $this->computePhrases($subject, 0);
         }
 
+        /**
+         * @param string $subject
+         * @param int $i
+         *
+         * @return bool|mixed
+         */
         protected function computePhrases(string $subject, int $i)
         {
             $found = ('' === $subject);
@@ -88,6 +105,11 @@
             }
         }
 
+        /**
+         * @param array $phrases
+         *
+         * @return static
+         */
         public static function get(array $phrases)
         {
             return new static($phrases);

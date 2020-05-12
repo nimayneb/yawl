@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Wildcard {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Wildcard {
 
     /*
      * This file belongs to the package "nimayneb.yawl".
@@ -273,9 +275,9 @@
                 [
                     ($this->strpos)($pattern, Token::ZERO_OR_MANY_CHARACTERS),
                     ($this->strpos)($pattern, Token::ONE_CHARACTER),
-                    ($this->strpos)($pattern, Token::ESCAPE_CHAR)
+                    ($this->strpos)($pattern, Token::ESCAPE_CHAR),
                 ],
-                fn ($value) => false !== $value
+                fn($value) => false !== $value
             );
 
             return (!empty($positions) ? min($positions) : null);

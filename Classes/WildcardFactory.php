@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Wildcard {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Wildcard {
 
     /*
      * This file belongs to the package "nimayneb.yawl".
@@ -18,6 +20,9 @@
          */
         protected static array $cachedPattern = [];
 
+        /**
+         *
+         */
         public function __construct()
         {
             $this->setSingleByte();
@@ -53,7 +58,7 @@
                 } elseif (('*' === $token) && ('*' === $nextToken)) {
                     $skipToken = true;
                     $token = '**';
-                }  elseif (("\\" === $token) && ($this->hasNextToken($nextToken))) {
+                } elseif (("\\" === $token) && ($this->hasNextToken($nextToken))) {
                     // Encode escaped character
                     $skipToken = true;
                     $token = chr(0) . $nextToken;
@@ -168,6 +173,11 @@
             );
         }
 
+        /**
+         * @param $subject
+         *
+         * @return Generator
+         */
         protected function nextCharacter($subject): Generator
         {
             $length = ($this->strlen)($subject);
@@ -186,9 +196,8 @@
          */
         public function get(string $pattern): WildcardPhraser
         {
-            $phraser = static::$cachedPattern[$pattern] ?? (static::$cachedPattern[$pattern] = $this->create($pattern));
-
-            return $phraser;
+            return static::$cachedPattern[$pattern]
+                ?? (static::$cachedPattern[$pattern] = $this->create($pattern));
         }
     }
 }

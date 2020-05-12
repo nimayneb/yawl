@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Wildcard {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Wildcard {
 
     /*
      * This file belongs to the package "nimayneb.yawl".

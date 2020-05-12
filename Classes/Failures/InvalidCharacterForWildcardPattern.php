@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Wildcard\Failures {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Wildcard\Failures {
 
     /*
      * This file belongs to the package "nimayneb.yawl".
@@ -9,6 +11,10 @@
 
     class InvalidCharacterForWildcardPattern extends Exception
     {
+        /**
+         * @param string $reference
+         * @param int $position
+         */
         public function __construct(string $reference, int $position)
         {
             $speakingClassName = substr(strrchr(static::class, "\\"), 1);

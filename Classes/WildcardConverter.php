@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Wildcard {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Wildcard {
 
     /*
      * This file belongs to the package "nimayneb.yawl".
@@ -7,21 +9,47 @@
 
     class WildcardConverter
     {
+        /**
+         * @param string $wildcard
+         * @param string $subject
+         *
+         * @return bool
+         */
         public static function singleByteMatch(string $wildcard, string $subject)
         {
-            return (false !== preg_match(static::convertWildcardToScopedRegularExpression($wildcard), $subject));
+            return (false !== preg_match(
+                    static::convertWildcardToScopedRegularExpression($wildcard), $subject
+                ));
         }
 
+        /**
+         * @param string $wildcard
+         * @param string $subject
+         *
+         * @return bool
+         */
         public static function multiByteMatch(string $wildcard, string $subject)
         {
-            return mb_ereg_match(static::convertWildcardToRegularExpression($wildcard), $subject);
+            return mb_ereg_match(
+                static::convertWildcardToRegularExpression($wildcard), $subject
+            );
         }
 
+        /**
+         * @param string $wildcard
+         *
+         * @return string
+         */
         public static function convertWildcardToScopedRegularExpression(string $wildcard)
         {
             return sprintf('/%s/', static::convertWildcardToRegularExpression($wildcard));
         }
 
+        /**
+         * @param string $wildcard
+         *
+         * @return string
+         */
         public static function convertWildcardToRegularExpression(string $wildcard)
         {
             $escapeQuery = chr(0);
@@ -31,12 +59,12 @@
                 '^%s$',
 
                 str_replace(
-                    [$escapeAsterisk,   $escapeQuery],
-                    ['*',               '?'],
+                    [$escapeAsterisk, $escapeQuery],
+                    ['*', '?'],
 
                     str_replace(
-                        ['\\?',                 '\\*',                  '?*',               '?', '**', '*'],
-                        ['\\' . $escapeQuery,   '\\' . $escapeAsterisk, '.' . $escapeQuery, '.', '.+', '.*'],
+                        ['\\?', '\\*', '?*', '?', '**', '*'],
+                        ['\\' . $escapeQuery, '\\' . $escapeAsterisk, '.' . $escapeQuery, '.', '.+', '.*'],
 
                         $wildcard
                     )
