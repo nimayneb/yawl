@@ -16,7 +16,7 @@
   ],
   "license": "GPL-3.0",
   "type": "library",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "authors": [
     {
       "name": "Jan Runte",
@@ -29,7 +29,7 @@
     "nimayneb/benchmark": "1.0.1"
   },
   "require-dev": {
-    "phpunit/phpunit": "^8.3.0"
+    "phpunit/phpunit": "^9.1.0"
   },
   "autoload": {
     "psr-4": {
