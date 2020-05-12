@@ -1,22 +1,36 @@
 <?php declare(strict_types=1);
 
-namespace JayBeeR\Wildcard {
+/*
+ * This file belongs to the package "nimayneb.yawl".
+ * See LICENSE.txt that was shipped with this package.
+ */
 
-    /*
-     * This file belongs to the package "nimayneb.yawl".
-     * See LICENSE.txt that was shipped with this package.
-     */
+namespace JayBeeR\Wildcard {
 
     use Generator;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
     use JayBeeR\Wildcard\Failures\InvalidEscapedCharacterForWildcardPattern;
 
+    /**
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess) Reason: because of Factory calls
+     */
     class WildcardFactory implements Encoding
     {
         use StringFunctionMapper;
 
+        protected bool $skipToken;
+
+        protected ?string $previousToken;
+
+        protected array $phrases;
+
+        protected int $index;
+
+        protected string $phrase;
+
         /**
-         * @var WildcardPhraser[]
+         * @var WildcardPerformer[]
          */
         protected static array $cachedPattern = [];
 
@@ -31,132 +45,161 @@ namespace JayBeeR\Wildcard {
         /**
          * @param string $pattern
          *
-         * @return WildcardPhraser
+         * @return WildcardPerformer
          * @throws InvalidCharacterForWildcardPattern
          * @throws InvalidEscapedCharacterForWildcardPattern
          */
-        protected function create(string $pattern): WildcardPhraser
+        protected function create(string $pattern): WildcardPerformer
         {
-            $skipToken = false;
-            $previousToken = null;
-            $phrases = [];
-            $phrase = '';
-            $index = 0;
+            $this->reset();
 
             foreach ($this->nextCharacter($pattern) as $offset => $token) {
-                if ($skipToken) {
-                    $skipToken = false;
+                if ($this->skipToken) {
+                    $this->skipToken = false;
 
                     continue;
                 }
 
                 $nextToken = ($this->substr)($pattern, $offset + 1, 1);
 
-                if (('?' === $token) && ('*' === $nextToken)) {
-                    $skipToken = true;
-                    $token = '?*';
-                } elseif (('*' === $token) && ('*' === $nextToken)) {
-                    $skipToken = true;
-                    $token = '**';
-                } elseif (("\\" === $token) && ($this->hasNextToken($nextToken))) {
-                    // Encode escaped character
-                    $skipToken = true;
-                    $token = chr(0) . $nextToken;
-                } elseif ("\\" === $token) {
-                    throw new InvalidEscapedCharacterForWildcardPattern($pattern, $offset);
-                } elseif (('*' === $token) && ('?' === $nextToken)) {
-                    throw new InvalidCharacterForWildcardPattern($pattern, $offset);
-                } elseif (('?*' === $previousToken) && ('?' === $token)) {
-                    throw new InvalidCharacterForWildcardPattern($pattern, $offset);
-                } elseif (('?*' === $previousToken) && ('*' === $token)) {
-                    throw new InvalidCharacterForWildcardPattern($pattern, $offset);
-                } elseif (('**' === $previousToken) && ('*' === $token)) {
-                    throw new InvalidCharacterForWildcardPattern($pattern, $offset);
+                if (!$this->analyseToken($token, $nextToken)) {
+                    $this->analyseInvalidPreviousToken($token, $nextToken, $pattern, $offset);
                 }
 
                 switch ($token) {
                     case '?':
                     {
-                        if (isset($phrases[$index][0])) {
-                            $phrase = '';
-                        }
-
-                        if ('?' === $previousToken) {
-                            $phrases[$index][1]++;
-                            $phrases[$index][2]++;
-                        } else {
-                            $phrases[++$index] = [$phrase, 1, 1];
-                            $phrase = '';
-                        }
+                        $this->addPhraseForQuery();
 
                         break;
                     }
 
                     case '*':
                     {
-                        if (isset($phrases[$index][0])) {
-                            $phrase = '';
-                        }
-
-                        $phrases[++$index] = [$phrase, 0, -1];
-                        $phrase = '';
+                        $this->addPhraseForAsterisk();
 
                         break;
                     }
 
                     case '**':
                     {
-                        if (isset($phrases[$index][0])) {
-                            $phrase = '';
-                        }
-
-                        $phrases[++$index] = [$phrase, 1, -1];
-                        $phrase = '';
+                        $this->addPhraseForDoubleAsterisks();
 
                         break;
                     }
 
                     case '?*':
                     {
-                        if (isset($phrases[$index][0])) {
-                            $phrase = '';
-                        }
-
-                        if ('?' === $previousToken) {
-                            $phrases[$index][2]++;
-                        } else {
-                            $phrases[++$index] = [$phrase, 0, 1];
-                            $phrase = '';
-                        }
-
+                        $this->addPhraseForQueryAsterisk();
 
                         break;
                     }
 
                     default:
                     {
-                        // Decode escaped character
-                        if (chr(0) === $token[0]) {
-                            $token = $token[1];
-                        }
-
-                        $phrase .= $token;
-
-                        if (!isset($phrases[$index])) {
-                            $phrases[$index] = [$phrase, 0, 0];
-                        } else {
-                            $phrases[$index][0] = $phrase;
-                        }
+                        $this->addPhraseForWord($token);
                     }
                 }
 
-                $previousToken = $token;
+                $this->previousToken = $token;
             }
 
-            $phraser = WildcardPhraser::get($phrases);
+            $phraser = WildcardPerformer::get($this->phrases);
             $phraser->adopt($this);
 
             return $phraser;
+        }
+
+        /**
+         *
+         */
+        protected function reset(): void
+        {
+            $this->skipToken = false;
+            $this->previousToken = null;
+            $this->phrases = [];
+            $this->phrase = '';
+            $this->index = 0;
+        }
+
+        /**
+         * @param string $token
+         */
+        protected function addPhraseForWord(string $token): void
+        {
+            // Decode escaped character
+            if (chr(0) === $token[0]) {
+                $token = $token[1];
+            }
+
+            $this->phrase .= $token;
+
+            if (!isset($this->phrases[$this->index])) {
+                $this->phrases[$this->index] = [$this->phrase, 0, 0];
+            } else {
+                $this->phrases[$this->index][0] = $this->phrase;
+            }
+        }
+
+        /**
+         *
+         */
+        protected function addPhraseForQueryAsterisk(): void
+        {
+            if (isset($this->phrases[$this->index][0])) {
+                $this->phrase = '';
+            }
+
+            if ('?' === $this->previousToken) {
+                $this->phrases[$this->index][2]++;
+            } else {
+                $this->phrases[++$this->index] = [$this->phrase, 0, 1];
+                $this->phrase = '';
+            }
+        }
+
+        /**
+         *
+         */
+        protected function addPhraseForDoubleAsterisks(): void
+        {
+            if (isset($this->phrases[$this->index][0])) {
+                $this->phrase = '';
+            }
+
+            $this->phrases[++$this->index] = [$this->phrase, 1, -1];
+            $this->phrase = '';
+        }
+
+        /**
+         *
+         */
+        protected function addPhraseForAsterisk(): void
+        {
+            if (isset($this->phrases[$this->index][0])) {
+                $this->phrase = '';
+            }
+
+            $this->phrases[++$this->index] = [$this->phrase, 0, -1];
+            $this->phrase = '';
+        }
+
+        /**
+         *
+         */
+        protected function addPhraseForQuery(): void
+        {
+            if (isset($this->phrases[$this->index][0])) {
+                $this->phrase = '';
+            }
+
+            if ('?' === $this->previousToken) {
+                $this->phrases[$this->index][1]++;
+                $this->phrases[$this->index][2]++;
+            } else {
+                $this->phrases[++$this->index] = [$this->phrase, 1, 1];
+                $this->phrase = '';
+            }
         }
 
         /**
@@ -190,14 +233,80 @@ namespace JayBeeR\Wildcard {
         /**
          * @param string $pattern
          *
-         * @return WildcardPhraser
+         * @return WildcardPerformer
          * @throws InvalidCharacterForWildcardPattern
          * @throws InvalidEscapedCharacterForWildcardPattern
          */
-        public function get(string $pattern): WildcardPhraser
+        public function get(string $pattern): WildcardPerformer
         {
             return static::$cachedPattern[$pattern]
-                ?? (static::$cachedPattern[$pattern] = $this->create($pattern));
+                ?? (static::$cachedPattern[$pattern] = $this->create($pattern))
+            ;
+        }
+
+        /**
+         * @param string $token
+         * @param string $nextToken
+         *
+         * @return bool
+         */
+        protected function analyseToken(string &$token, string $nextToken): bool
+        {
+            if (('?' === $token) && ('*' === $nextToken)) {
+                $this->skipToken = true;
+                $token = '?*';
+            } elseif (('*' === $token) && ('*' === $nextToken)) {
+                $this->skipToken = true;
+                $token = '**';
+            } elseif (("\\" === $token) && ($this->hasNextToken($nextToken))) {
+                // Encode escaped character
+                $this->skipToken = true;
+                $token = chr(0) . $nextToken;
+            } else {
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * @param string $token
+         * @param string $nextToken
+         * @param string $pattern
+         * @param int $offset
+         *
+         * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
+         */
+        protected function analyseInvalidPreviousToken(string $token, string $nextToken, string $pattern, int $offset)
+        {
+            if (('?*' === $this->previousToken) && ('?' === $token)) {
+                throw new InvalidCharacterForWildcardPattern($pattern, $offset);
+            } elseif (('?*' === $this->previousToken) && ('*' === $token)) {
+                throw new InvalidCharacterForWildcardPattern($pattern, $offset);
+            } elseif (('**' === $this->previousToken) && ('*' === $token)) {
+                throw new InvalidCharacterForWildcardPattern($pattern, $offset);
+            } else {
+                $this->analyseInvalidNextToken($token, $nextToken, $pattern, $offset);
+            }
+        }
+
+        /**
+         * @param string $token
+         * @param string $nextToken
+         * @param string $pattern
+         * @param int $offset
+         *
+         * @throws InvalidCharacterForWildcardPattern
+         * @throws InvalidEscapedCharacterForWildcardPattern
+         */
+        protected function analyseInvalidNextToken(string $token, string $nextToken, string $pattern, int $offset)
+        {
+            if (('*' === $token) && ('?' === $nextToken)) {
+                throw new InvalidCharacterForWildcardPattern($pattern, $offset);
+            } elseif ("\\" === $token) {
+                throw new InvalidEscapedCharacterForWildcardPattern($pattern, $offset);
+            }
         }
     }
 }

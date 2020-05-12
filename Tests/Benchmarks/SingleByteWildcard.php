@@ -1,7 +1,12 @@
 <?php declare(strict_types=1);
 
+/*
+ * This file belongs to the package "nimayneb.yawl".
+ * See LICENSE.txt that was shipped with this package.
+ */
+
 use JayBeeR\Wildcard\WildcardConverter;
-use JayBeeR\Wildcard\WildcardGenerator;
+use JayBeeR\Wildcard\Tests\Helper\WildcardGenerator;
 use JayBeeR\Wildcard\WildcardMatcher;
 use JayBeeR\Wildcard\WildcardFactory;
 
@@ -10,7 +15,7 @@ require_once '../../vendor/autoload.php';
 {
     $temp = [];
 
-    foreach (WildcardGenerator::getRandomCount(1000) as $wildcards) {
+    foreach (WildcardGenerator::getRandomCount(10000) as $wildcards) {
         $wildcards['regExp'] = WildcardConverter::convertWildcardToRegularExpression($wildcards['wildcard']);
         $temp[] = $wildcards;
     }
@@ -35,7 +40,14 @@ require_once '../../vendor/autoload.php';
                 }
 
                 if (true !== (1 === $currentResult)) {
-                    throw new Exception(sprintf('Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>', $regExp, $subject, $index));
+                    throw new Exception(
+                        sprintf(
+                            'Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>',
+                            $regExp,
+                            $subject,
+                            $index
+                        )
+                    );
                 }
             }
         },
@@ -57,7 +69,14 @@ require_once '../../vendor/autoload.php';
         function () use ($temp, $wc) {
             foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
                 if (!$wc->matchWildcard($subject, $wildcard)) {
-                    throw new Exception(sprintf('Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>', $wildcard, $subject, $index));
+                    throw new Exception(
+                        sprintf(
+                            'Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>',
+                            $wildcard,
+                            $subject,
+                            $index
+                        )
+                    );
                 }
             }
         },
@@ -68,10 +87,17 @@ require_once '../../vendor/autoload.php';
         'WildcardPerformer',
         function() use($temp, $wc, $factory) {
             foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
-                $performer = $factory->get($wildcard);
+                $phraser = $factory->get($wildcard);
 
-                if (!$performer->match($subject)) {
-                    throw new Exception(sprintf('Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>', $wildcard, $subject, $index));
+                if (!$phraser->match($subject)) {
+                    throw new Exception(
+                        sprintf(
+                            'Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>',
+                            $wildcard,
+                            $subject,
+                            $index
+                        )
+                    );
                 }
             }
         },

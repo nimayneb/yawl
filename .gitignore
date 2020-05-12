@@ -2,4 +2,5 @@ vendor
 composer.lock
 .idea
 *.log
-.phpunit*
+.phpunit.*
+.php_cs.*

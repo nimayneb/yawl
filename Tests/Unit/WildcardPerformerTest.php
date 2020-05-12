@@ -1,18 +1,23 @@
 <?php  declare(strict_types=1);
 
+/*
+ * This file belongs to the package "nimayneb.yawl".
+ * See LICENSE.txt that was shipped with this package.
+ */
+
 namespace JayBeeR\Wildcard\Tests\Unit {
 
     use Exception;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
     use JayBeeR\Wildcard\Failures\InvalidEscapedCharacterForWildcardPattern;
-    use JayBeeR\Wildcard\WildcardGenerator;
+    use JayBeeR\Wildcard\Tests\Helper\WildcardGenerator;
     use JayBeeR\Wildcard\WildcardFactory;
-    use JayBeeR\Wildcard\WildcardPhraser;
+    use JayBeeR\Wildcard\WildcardPerformer;
 
-    class WildcardPhraserTest extends WildcardMatcherTest
+    class WildcardPerformerTest extends WildcardTest
     {
         /**
-         * @var WildcardPhraser|object
+         * @var WildcardPerformer|object
          */
         protected object $subject;
 

@@ -9,15 +9,17 @@ This is a library with classes for any wildcard implementation that finds patter
 Problem
 -------
 
-Without regular expression extension (named `ext-pcre`) you have no wildcard support within PHP.
+Without regular expression extension (named `ext-pcre` - before PHP 5.3) you have no wildcard support within PHP.
+
+See https://www.php.net/manual/en/pcre.installation.php.
 
 The known wildcard behavior (see [Wildcard character (@Wikipedia)](https://en.wikipedia.org/wiki/Wildcard_character))
 is limited for a good implementation.
 
 A small remedy?
 
-We need a kind of "compiled" and "cached" pattern. The implementation of regular expression like `mb_ereg_match` has a
-huge performance (we lost)!
+We need a kind of "compiled" and "cached" pattern. The implementation of regular expression like `preg_match` has a
+huge performance. We lost these advantage as of PHP 7.0, because of just-in-time compiled pcre pattern!
 
 
 Table of content
@@ -36,9 +38,8 @@ Table of content
 API:
 
 1. [Matcher (for use of single calls)](Documentation/WildcardMatcher.md)
-2. [Phraser (for use of multiple calls)](Documentation/WildcardPhraser.md)
+2. [Performer (for use of multiple calls)](Documentation/WildcardPerformer.md)
 3. [Converter (for use of regular expression)](Documentation/WildcardConverter.md)
-4. [Generator (for test purposes)](Documentation/WildcardGenerator.md)
 
 
 Benchmark
@@ -52,7 +53,7 @@ When we benchmark several methods to match a fitting phrase (1000 random strings
 
 | Benchmark           | Time       | Reference | Difference  |   
 |---------------------|------------|:---------:|:-----------:|
-|   `WildcardPhraser` | 0.00353789 |   100 %   | -           |
+| `WildcardPerformer` | 0.00353789 |   100 %   | -           |
 |        `preg_match` | 0.01223898 |    71 %   | 71 %        |
 |   `WildcardMatcher` | 0.01635289 |    25 %   | 78 %        |
 
@@ -61,7 +62,7 @@ When we benchmark several methods to match a fitting phrase (1000 random strings
 
 | Benchmark           | Time       | Reference | Difference  |  
 |---------------------|------------|:---------:|:-----------:|
-|   `WildcardPhraser` | 0.00660086 |   100 %   | -           | 
+| `WildcardPerformer` | 0.00660086 |   100 %   | -           | 
 |     `mb_ereg_match` | 0.01290488 |    48 %   | 48 %        | 
 |   `WildcardMatcher` | 0.03252506 |    60 %   | 79 %        | 
    
@@ -69,28 +70,28 @@ When we benchmark several methods to match a fitting phrase (1000 random strings
 Internal PHP functions comparison
 ---------------------------------
 
-| Function   | WildcardMatcher | WildcardPhraser | 
-|------------|-----------------|-----------------|
-| strlen     | 9               | 5 (-4)          |
-| substr     | 5               | 4 (-1)          |
-| strpos     | 5               | 1 (-4)          |
-| chr        | 2               | 2 (0)           |
-| Conditions | 57              | 13 (-44)        |
+| Function   | WildcardMatcher | WildcardPerformer | 
+|------------|-----------------|-------------------|
+| strlen     | 9               | 5 (-4)            |
+| substr     | 5               | 4 (-1)            |
+| strpos     | 5               | 1 (-4)            |
+| chr        | 2               | 2 (0)             |
+| Conditions | 57              | 13 (-44)          |
  
 
 Wildcard variants
 -----------------
 
-| None character | One character | More characters | Token          |
-|----------------|---------------|-----------------|----------------|
-|              0 |             0 |               0 | (null)         |
-|              0 |             0 |               1 | ??             |
-|              0 |             1 |               0 | ?              |
-|              0 |             1 |               1 | **             |
-|              1 |             0 |               0 | (empty string) |
-|              1 |             0 |               1 | ??** (draft)   |
-|              1 |             1 |               0 | ?*             |
-|              1 |             1 |               1 | *              |
+| != character | == 1 character | >= 2 characters | Token          |
+|--------------|----------------|-----------------|----------------|
+|            0 |              0 |               0 | (invalid)      |
+|            0 |              0 |               1 | ??... / ??...* |
+|            0 |              1 |               0 | ?              |
+|            0 |              1 |               1 | **             |
+|            1 |              0 |               0 | (empty string) |
+|            1 |              0 |               1 | ??** (draft)   |
+|            1 |              1 |               0 | ?*             |
+|            1 |              1 |               1 | *              |
 
 
 Possible valid pattern
@@ -130,25 +131,28 @@ Further explanation:
 
 | programmatic   | internal  | after escaping |
 |----------------|-----------|----------------|
-| `\\`           | `\ `      | `\ `           |
-| `\\\\`         | `\\`      | `\ `           |
+| ` \\ `         | ` \ `     | ` \ `          |
+| ` \\\\ `       | ` \\ `    | ` \ `          |
+
 
 Repeating phrases
 -----------------
 
-The asterisk (`*`) has a problem finding the right position. If several identical phrases are found in a string, it is
-necessary to return to a position of previous token (`*`) and continue to try from the next found position.
+The asterisk (`*`) has a problem finding the right position. If several identical phrases can be found in a string,
+the search must take place in all positions to find the pattern.
 
-     Search: *is?ue
+     Search: *is?ue (where is "*is")
     Subject: this is an asterisk issue
      Founds:   ^  ^          ^   ^
+
+The simplest solution is to break down the pattern recursively, but it should be not recursively.
 
 
 Caching
 -------
 
-The regular expression extension has a caching and compiling strategy to improve performance. The second time the same pattern is
-called, a tremendous increase in performance is achieved.
+The regular expression extension has a caching and compiling strategy to improve performance. The second time the same
+pattern is called, a tremendous increase in performance is achieved.
 
 To help us to improve also performance, we use a simple key-value caching.
 
@@ -159,16 +163,16 @@ To help us to improve also performance, we use a simple key-value caching.
             return $this->cachedResults[$subject] ?? $this->cachedResults[$subject] = $this->computePhrases($subject, 0);
         }
 
-This can be decapsulated, so that we can provide a Redis implementation for example.
+This is not a preferred solution.
 
 
 Wish list
 ---------
 
-- Remove recursive call of `WildcardPhrase::computePhrases` (see [Wikipedia - Matching wildcards](https://en.wikipedia.org/wiki/Matching_wildcards))
+- Remove recursive call of `WildcardPerformer::computePhrases` (see [Wikipedia - Matching wildcards](https://en.wikipedia.org/wiki/Matching_wildcards))
 - Remove of `StringFunctionMapper` (too slow)
-- Combine Matcher and Phraser (two advantages in one)
-- Caching interface (Redis performance, memory allocation)
+- Combine Matcher and Performer (two advantages in one)
+- Caching interface
 - New pattern `??**` (0 or 2 characters) or `?????**` (0 or 5 characters)
 - [Glob support](https://en.wikipedia.org/wiki/Glob_\(programming\))
     - Example: `[abcdef0123456789]`, `[0-9a-f]`, `[!a-z]`

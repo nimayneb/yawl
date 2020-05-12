@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace JayBeeR\Wildcard {
+/*
+ * This file belongs to the package "nimayneb.yawl".
+ * See LICENSE.txt that was shipped with this package.
+ */
 
-    /*
-     * This file belongs to the package "nimayneb.yawl".
-     * See LICENSE.txt that was shipped with this package.
-     */
+namespace JayBeeR\Wildcard {
 
     trait StringFunctionMapper
     {

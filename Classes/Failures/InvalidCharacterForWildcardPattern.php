@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace JayBeeR\Wildcard\Failures {
+/*
+ * This file belongs to the package "nimayneb.yawl".
+ * See LICENSE.txt that was shipped with this package.
+ */
 
-    /*
-     * This file belongs to the package "nimayneb.yawl".
-     * See LICENSE.txt that was shipped with this package.
-     */
+namespace JayBeeR\Wildcard\Failures {
 
     use Exception;
 
@@ -21,7 +21,9 @@ namespace JayBeeR\Wildcard\Failures {
             $wordsFromClassName = array_filter(preg_split('/(?=[A-Z])/', $speakingClassName));
             $sentence = ucfirst(strtolower(implode(' ', $wordsFromClassName)));
 
-            parent::__construct(sprintf('%s: "%s"', $sentence, $reference));
+            parent::__construct(
+                sprintf('%s: "%s" (position: %d)', $sentence, $reference, $position)
+            );
         }
     }
 }

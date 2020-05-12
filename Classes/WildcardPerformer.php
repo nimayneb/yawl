@@ -1,10 +1,15 @@
 <?php declare(strict_types=1);
 
+/*
+ * This file belongs to the package "nimayneb.yawl".
+ * See LICENSE.txt that was shipped with this package.
+ */
+
 namespace JayBeeR\Wildcard {
 
     use Generator;
 
-    class WildcardPhraser
+    class WildcardPerformer
     {
         use StringFunctionMapper;
 
@@ -33,55 +38,69 @@ namespace JayBeeR\Wildcard {
 
         /**
          * @param string $subject
-         * @param int $i
+         * @param int $index
          *
          * @return bool|mixed
          */
-        protected function computePhrases(string $subject, int $i)
+        protected function computePhrases(string $subject, int $index)
         {
             $found = ('' === $subject);
 
-            if (isset($this->phrases[$i])) {
-                [$phrase, $min, $max] = $this->phrases[$i];
+            if (isset($this->phrases[$index])) {
+                [$phrase, $min, $max] = $this->phrases[$index];
 
                 if (-1 === $max) {
                     $max = ($this->strlen)($subject);
                 }
 
                 if ('' !== $phrase) {
-                    $newSubject = $subject;
-                    $occurrence = false;
-
-                    foreach ($this->getPositionOfOccurrence($subject, $phrase) as $position) {
-                        if ('' === $newSubject) {
-                            break;
-                        }
-
-                        $occurrence = true;
-
-                        if (!(($position >= $min) && ($position <= $max))) {
-                            $occurrence = false;
-
-                            continue;
-                        }
-
-                        $newSubject = ($this->substr)($subject, ($this->strlen)($phrase) + $position);
-
-                        if ('' === $newSubject) {
-                            break;
-                        }
-
-                        $occurrence = $this->computePhrases($newSubject, $i + 1);
-
-                        if ($occurrence) {
-                            break;
-                        }
-                    }
-
-                    $found = $occurrence;
+                    $found = $this->findOccurrence($subject, $phrase, $min, $max, $index);
                 } else {
                     $length = ($this->strlen)($subject);
                     $found = (($length >= $min) && ($length <= $max));
+                }
+            }
+
+            return $found;
+        }
+
+        /**
+         * @param string $subject
+         * @param string $phrase
+         * @param int $min
+         * @param int $max
+         * @param int $index
+         *
+         * @return bool
+         */
+        protected function findOccurrence(string $subject, string $phrase, int $min, int $max, int $index): bool
+        {
+            $found = false;
+            $newSubject = $subject;
+
+            foreach ($this->getPositionOfOccurrence($subject, $phrase) as $position) {
+                if ('' === $newSubject) {
+                    break;
+                }
+
+                $found = true;
+
+                if (!(($position >= $min) && ($position <= $max))) {
+                    $found = false;
+
+                    continue;
+                }
+
+                $newSubject = ($this->substr)($subject, ($this->strlen)($phrase) + $position);
+
+                if ('' === $newSubject) {
+                    break;
+                }
+
+                $found = $this->computePhrases($newSubject, $index + 1);
+
+                if ($found) {
+                    break;
                 }
             }
 

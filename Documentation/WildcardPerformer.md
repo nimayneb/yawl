@@ -1,5 +1,5 @@
-Wildcard Phraser
-================
+Wildcard Performer
+==================
 
 This class gives the advantage of prepared patterns.
 

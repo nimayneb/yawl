@@ -16,7 +16,7 @@
   ],
   "license": "GPL-3.0",
   "type": "library",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "authors": [
     {
       "name": "Jan Runte",
@@ -26,10 +26,12 @@
   "require": {
     "php": "^7.4.0",
     "ext-mbstring": "*",
-    "nimayneb/benchmark": "1.0.1"
+    "nimayneb/benchmark": "1.0.1",
+    "phpmd/phpmd": "^2.8"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.1.0"
+    "phpunit/phpunit": "^9.1.0",
+    "nimayneb/phpqg": "1.0.0"
   },
   "autoload": {
     "psr-4": {
@@ -43,22 +45,42 @@
   },
   "repositories": [
     {
-      "type":"package",
+      "type": "package",
       "package": {
         "name": "nimayneb/benchmark",
         "version": "1.0.1",
         "source": {
           "url": "https://gist.github.com/nimayneb/c9252e0093979e84ca403a633a61e4e7",
           "type": "git",
-          "reference":"master"
+          "reference": "master"
         },
         "autoload": {
-          "classmap": ["."]
+          "classmap": [
+            "."
+          ]
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "nimayneb/phpqg",
+        "version": "1.0.0",
+        "source": {
+          "url": "https://gist.github.com/nimayneb/142af065c66e2661054d5a43bd96ebed",
+          "type": "git",
+          "reference": "master"
+        },
+        "autoload": {
+          "classmap": [
+            "."
+          ]
         }
       }
     }
   ],
   "scripts": {
-    "test": "phpunit"
+    "tests": "phpunit",
+    "phpmd": "phpmd Classes ansi vendor/nimayneb/phpqg/phpmd.xml"
   }
 }

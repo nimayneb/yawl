@@ -44,7 +44,7 @@ Invalid wildcard pattern can not be fully recognized unless the entire pattern h
                           ^   ^
         pattern not found |   | invalid pattern (not recognized)
 
-We do not have this behavior for the `WildcardPhraser`, because the pattern will be completely prepared.
+We do not have this behavior for the `WildcardPerformer`, because the pattern will be completely prepared.
 
 
 Single call performance
@@ -53,17 +53,17 @@ Single call performance
 The WildcardMatcher trait property performs well (better than the corresponding "regular expression" with `preg_match`),
 when called for the first time. Therefore, use this pattern only for known cases which has only single calls:
 
-| Benchmark         | Time       | Reference | Difference  |   
-|-------------------|------------|:---------:|:-----------:|
-| `WildcardMatcher` | 0.00010991 |   100 %   | -           | 
-| `WildcardPhraser` | 0.00015211 |    27 %   | 27 %        | 
-|      `preg_match` | 0.00017595 |    13 %   | 37 %        | 
+| Benchmark           | Time       | Reference | Difference  |   
+|---------------------|------------|:---------:|:-----------:|
+|   `WildcardMatcher` | 0.00010991 |   100 %   | -           | 
+| `WildcardPerformer` | 0.00015211 |    27 %   | 27 %        | 
+|        `preg_match` | 0.00017595 |    13 %   | 37 %        | 
 
 
 But compared to `mb_ereg_match` we lost this advantage:
 
-| Benchmark         | Time       | Reference | Difference  | 
-|-------------------|------------|:---------:|:-----------:|
-|   `mb_ereg_match` | 0.00005698 |   100 %   | -           |
-| `WildcardMatcher` | 0.00014687 |    61 %   | 61 %        |
-| `WildcardPhraser` | 0.00020194 |    27 %   | 71 %        |
+| Benchmark           | Time       | Reference | Difference  | 
+|---------------------|------------|:---------:|:-----------:|
+|     `mb_ereg_match` | 0.00005698 |   100 %   | -           |
+|   `WildcardMatcher` | 0.00014687 |    61 %   | 61 %        |
+| `WildcardPerformer` | 0.00020194 |    27 %   | 71 %        |

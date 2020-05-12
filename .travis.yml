@@ -1,10 +1,20 @@
 language: php
 php:
-  - '7.4'
+  - '7.4.5'
+  - '7.4.4'
+  - '7.4.3'
+  - '7.4.2'
+  - '7.4.1'
+  - '7.4.0'
 branches:
   only:
     master
 before_install:
   - travis_retry composer self-update
   - composer install
-script: composer test
+script:
+  - composer tests
+  - composer phpmd
+  - cd Tests/Benchmarks
+  - php SingleByteWildcard.php
+  - php MultiByteWildcard.php
