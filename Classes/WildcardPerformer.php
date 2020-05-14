@@ -9,19 +9,24 @@ namespace JayBeeR\Wildcard {
 
     use Generator;
 
+    /**
+     *
+     */
     class WildcardPerformer
     {
-        use StringFunctionMapper;
-
         protected array $cachedResults = [];
 
         protected array $phrases = [];
 
+        protected StringFunctionsMapper $stringFunctions;
+
         /**
          * @param array $phrases
+         * @param StringFunctionsMapper $stringFunctions
          */
-        protected function __construct(array $phrases)
+        protected function __construct(array $phrases, StringFunctionsMapper $stringFunctions = null)
         {
+            $this->stringFunctions = $stringFunctions ?? new StringFunctionsMapper;
             $this->phrases = array_values($phrases);
         }
 
@@ -50,13 +55,13 @@ namespace JayBeeR\Wildcard {
                 [$phrase, $min, $max] = $this->phrases[$index];
 
                 if (-1 === $max) {
-                    $max = ($this->strlen)($subject);
+                    $max = ($this->stringFunctions->strlen)($subject);
                 }
 
                 if ('' !== $phrase) {
                     $found = $this->findOccurrence($subject, $phrase, $min, $max, $index);
                 } else {
-                    $length = ($this->strlen)($subject);
+                    $length = ($this->stringFunctions->strlen)($subject);
                     $found = (($length >= $min) && ($length <= $max));
                 }
             }
@@ -91,7 +96,7 @@ namespace JayBeeR\Wildcard {
                     continue;
                 }
 
-                $newSubject = ($this->substr)($subject, ($this->strlen)($phrase) + $position);
+                $newSubject = ($this->stringFunctions->substr)($subject, ($this->stringFunctions->strlen)($phrase) + $position);
 
                 if ('' === $newSubject) {
                     break;
@@ -118,11 +123,19 @@ namespace JayBeeR\Wildcard {
         {
             $lastPosition = $offset;
 
-            while (false !== ($lastPosition = ($this->strpos)($haystack, $needle, $lastPosition))) {
+            while (false !== ($lastPosition = ($this->stringFunctions->strpos)($haystack, $needle, $lastPosition))) {
                 yield $lastPosition;
 
-                $lastPosition = $lastPosition + ($this->strlen)($needle);
+                $lastPosition = $lastPosition + ($this->stringFunctions->strlen)($needle);
             }
+        }
+
+        /**
+         * @param StringFunctionsMapper $stringFunctions
+         */
+        public function setStringFunctions(StringFunctionsMapper $stringFunctions)
+        {
+            $this->stringFunctions = $stringFunctions;
         }
 
         /**

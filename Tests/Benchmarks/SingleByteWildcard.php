@@ -20,8 +20,7 @@ require_once '../../vendor/autoload.php';
         $temp[] = $wildcards;
     }
 
-    $factory = new WildcardFactory();
-    $factory->setSingleByte();
+    $factory = new WildcardFactory;
 
     foreach ($temp as $index => ['wildcard' => $wildcard]) {
         $performer = $factory->get($wildcard);
@@ -55,7 +54,6 @@ require_once '../../vendor/autoload.php';
     );
 
     $wc = new WildcardMatcher;
-    $wc->setSingleByte();
 
     \JayBeeR\Gists\Benchmark::run(
         'WildcardMatcher',

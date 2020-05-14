@@ -7,6 +7,9 @@
 
 namespace JayBeeR\Wildcard {
 
+    /**
+     *
+     */
     interface Token
     {
         // 0-1

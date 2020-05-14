@@ -10,19 +10,29 @@ namespace JayBeeR\Wildcard\Tests\Unit {
     use Exception;
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
     use JayBeeR\Wildcard\Failures\InvalidEscapedCharacterForWildcardPattern;
+    use JayBeeR\Wildcard\StringFunctionsMapper;
     use JayBeeR\Wildcard\Tests\Helper\WildcardGenerator;
     use JayBeeR\Wildcard\WildcardMatcher;
 
+    /**
+     *
+     */
     class WildcardMatcherTest extends WildcardTest
     {
         /**
-         * @var WildcardMatcher
+         * @var WildcardMatcher|object
          */
         protected object $subject;
 
+        protected StringFunctionsMapper $stringFunctions;
+
+        /**
+         *
+         */
         public function setUp(): void
         {
-            $this->subject = new WildcardMatcher;
+            $this->stringFunctions = new StringFunctionsMapper;
+            $this->subject = new WildcardMatcher($this->stringFunctions);
         }
 
         /**
@@ -34,7 +44,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
          */
         public function matchWildcardForSingleByteWithRandomStringsAndCorrespondingPatternsReturnsTrue()
         {
-            $this->subject->setSingleByte();
+            $this->stringFunctions->setSingleByte();
 
             foreach (WildcardGenerator::getRandomCount(2000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
                 $result = $this->subject->match($subject, $wildcard);
@@ -51,7 +61,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
          */
         public function matchWildcardForMultiByteWithRandomStringsAndCorrespondingPatternsReturnsTrue()
         {
-            $this->subject->setMultiByte();
+            $this->stringFunctions->setMultiByte();
 
             foreach (WildcardGenerator::getRandomCount(2000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
                 $result = $this->subject->match($subject, $wildcard);
@@ -72,7 +82,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
          */
         public function hasSingleByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
-            $this->subject->setSingleByte();
+            $this->stringFunctions->setSingleByte();
             $result = $this->subject->match($subject, $pattern);
             $this->assertEquals($valid, $result);
         }
@@ -90,7 +100,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
          */
         public function hasMultiByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
-            $this->subject->setMultiByte();
+            $this->stringFunctions->setMultiByte();
             $result = $this->subject->match($subject, $pattern);
             $this->assertEquals($valid, $result);
         }
@@ -108,7 +118,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function hasSingleByteWildcardMatchThrowsInvalidCharacterException(string $subject, string $pattern)
         {
             $this->expectException(InvalidCharacterForWildcardPattern::class);
-            $this->subject->setSingleByte();
+            $this->stringFunctions->setSingleByte();
             $this->subject->match($subject, $pattern);
         }
 
@@ -125,7 +135,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function hasMultiByteWildcardMatchThrowsInvalidCharacterException(string $subject, string $pattern)
         {
             $this->expectException(InvalidCharacterForWildcardPattern::class);
-            $this->subject->setMultiByte();
+            $this->stringFunctions->setMultiByte();
             $this->subject->match($subject, $pattern);
         }
 
@@ -142,7 +152,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function hasSingleByteWildcardMatchThrowsInvalidEscapedCharacterException(string $subject, string $pattern)
         {
             $this->expectException(InvalidEscapedCharacterForWildcardPattern::class);
-            $this->subject->setSingleByte();
+            $this->stringFunctions->setSingleByte();
             $this->subject->match($subject, $pattern);
         }
 
@@ -159,11 +169,8 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function hasMultiByteWildcardMatchThrowsInvalidEscapedCharacterException(string $subject, string $pattern)
         {
             $this->expectException(InvalidEscapedCharacterForWildcardPattern::class);
-            $this->subject->setMultiByte();
+            $this->stringFunctions->setMultiByte();
             $this->subject->match($subject, $pattern);
         }
     }
 }
-
-// xUliIj6HGHBcxPefaYV1hvGVK7490jJGNm8xzoaKu0vA7ZSNcEQBtA3giWSHXO1mtHdrhteRcFMKJG9PedXf4cukidbzEUghROwCf0oCn8Txk51ZfsX30VyyzKnUZE8tvNba9uLBmpPTCksUSWlFE6J6YBrMygnqdw9YROjwDDDzpQLnMyCRJMLvIk2ALsNQh
-// xUliIj6HGHBcxPefaYV1hvGVK7490jJGNm8xzoaKu0vA7ZSNcEQBtA3giWSHXO1mt**                                                   yyzKnUZE8tv**                                 RO???DDzpQLnMyCRJ????k2AL*N??

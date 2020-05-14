@@ -11,11 +11,23 @@ namespace JayBeeR\Wildcard {
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
     use JayBeeR\Wildcard\Failures\InvalidEscapedCharacterForWildcardPattern;
 
+    /**
+     *
+     * @SuppressWarnings(PHPMD.StaticAccess) Reason: because of Factory calls
+     */
     class WildcardMatcher
     {
-        use StringFunctionMapper;
-
         protected array $cachedResults = [];
+
+        protected StringFunctionsMapper $stringFunctions;
+
+        /**
+         * @param StringFunctionsMapper $stringFunctions
+         */
+        public function __construct(StringFunctionsMapper $stringFunctions = null)
+        {
+            $this->stringFunctions = $stringFunctions ?? new StringFunctionsMapper;
+        }
 
         /**
          * @param string $subject
@@ -41,23 +53,6 @@ namespace JayBeeR\Wildcard {
 
         /**
          * @param string $subject
-         *
-         * @return WildcardState
-         */
-        protected function createState(string $subject): WildcardState
-        {
-            $state = new WildcardState($subject);
-            $state->canBeZero = true;
-            $state->maxPosition = 0;
-            $state->subjectLength = ($this->strlen)($subject);
-            $state->dynamicLength = false;
-            $state->found = true;
-
-            return $state;
-        }
-
-        /**
-         * @param string $subject
          * @param string $pattern
          *
          * @return bool
@@ -66,14 +61,14 @@ namespace JayBeeR\Wildcard {
          */
         protected function hasWildcardMatch(string $subject, string $pattern): bool
         {
-            $state = $this->createState($subject);
+            $state = WildcardState::get($subject, $this->stringFunctions);
 
             foreach ($this->getWildcardToken($pattern) as $token => $partialPattern) {
-                if ($this->emptySubject($state, $token)) {
+                if ($state->emptySubject($token)) {
                     break;
                 }
 
-                if (!$this->analyseToken($state, $token)) {
+                if (!$state->analyseToken($token)) {
                     if (!$this->findPattern($state, $token, $partialPattern)) {
                         break;
                     }
@@ -83,7 +78,7 @@ namespace JayBeeR\Wildcard {
                 }
             }
 
-            return $this->isEverythingFound($state);
+            return $state->isEverythingFound();
         }
 
         /**
@@ -95,7 +90,7 @@ namespace JayBeeR\Wildcard {
          * @throws InvalidCharacterForWildcardPattern
          * @throws InvalidEscapedCharacterForWildcardPattern
          */
-        protected function findPattern(WildcardState $state, string $token, string $partialPattern)
+        public function findPattern(WildcardState $state, string $token, string $partialPattern)
         {
             $found = true;
             $this->convertEscapeToken($token);
@@ -106,7 +101,7 @@ namespace JayBeeR\Wildcard {
                 } else {
                     $state->found = false;
                 }
-            } elseif (!$this->findFixedLength($state, $token)) {
+            } elseif (!$state->findFixedLength($token)) {
                 $state->found = false;
                 $found = false;
             }
@@ -115,37 +110,13 @@ namespace JayBeeR\Wildcard {
         }
 
         /**
-         * @param WildcardState $state
          * @param string $token
-         *
-         * @return bool
          */
-        protected function emptySubject(WildcardState $state, string $token)
+        protected function convertEscapeToken(string &$token): void
         {
-            if (0 === $state->subjectLength) {
-                $state->found = (
-                    (Token::ZERO_OR_ONE_CHARACTER === $token)
-                    || (Token::ZERO_OR_MANY_CHARACTERS === $token)
-                );
-
-                return true;
+            if (chr(0) === $token[0]) {
+                $token = $token[1];
             }
-
-            return false;
-        }
-
-        /**
-         * @param WildcardState $state
-         *
-         * @return bool
-         */
-        protected function isEverythingFound(WildcardState $state)
-        {
-            if (('' !== $state->subject) && (0 !== $state->subjectLength)) {
-                $state->found = (0 !== $state->subjectLength) && ($state->subjectLength <= $state->maxPosition);
-            }
-
-            return $state->found;
         }
 
         /**
@@ -161,15 +132,15 @@ namespace JayBeeR\Wildcard {
         {
             $occurrences = 0;
 
-            foreach ($this->getPositionOfOccurrence($state->subject, $token) as $position) {
+            foreach ($state->getPositionOfOccurrence($state->subject, $token) as $position) {
                 $occurrences++;
 
-                if ($this->ignorePosition($state, $position)) {
+                if ($state->ignorePosition($position)) {
                     continue;
                 }
 
-                $start = $position + ($this->strlen)($token);
-                $newSubject = ($this->substr)($state->subject, $start);
+                $start = $position + ($this->stringFunctions->strlen)($token);
+                $newSubject = ($this->stringFunctions->substr)($state->subject, $start);
 
                 if ('' !== $partialPattern) {
                     if ($this->hasWildcardMatch($newSubject, $partialPattern)) {
@@ -193,108 +164,6 @@ namespace JayBeeR\Wildcard {
         }
 
         /**
-         * @param WildcardState $state
-         * @param $position
-         *
-         * @return bool
-         */
-        protected function ignorePosition(WildcardState $state, $position)
-        {
-            return (
-                ((false === $state->canBeZero) && (0 === $position))
-                || ((true === $state->canBeZero) && (1 === $state->maxPosition) && (1 < $position))
-                || ((0 === $state->maxPosition) && (0 !== $position))
-            );
-        }
-
-        /**
-         * @param WildcardState $state
-         * @param string $token
-         *
-         * @return bool
-         */
-        protected function findFixedLength(WildcardState $state, string $token): bool
-        {
-            if (
-                (false === ($position = ($this->strpos)($state->subject, $token)))
-                || ((false === $state->canBeZero) && (0 === $position))
-                || ((true === $state->canBeZero) && (1 === $state->maxPosition) && (1 < $position))
-                || ((0 === $state->maxPosition) && (0 !== $position))
-            ) {
-                $state->subject = '';
-                $state->subjectLength = 0;
-
-                return false;
-            }
-
-            $start = $position + ($this->strlen)($token);
-            $state->subject = ($this->substr)($state->subject, $start);
-            $state->subjectLength -= $start;
-
-            return true;
-        }
-
-        /**
-         * @param string $token
-         */
-        protected function convertEscapeToken(string &$token): void
-        {
-            if (chr(0) === $token[0]) {
-                $token = $token[1];
-            }
-        }
-
-        /**
-         * @param WildcardState $state
-         * @param string $token
-         *
-         * @return bool
-         */
-        protected function analyseToken(WildcardState $state, string $token): bool
-        {
-            if (Token::ONE_CHARACTER === $token) {
-                $state->subject = ($this->substr)($state->subject, 1);
-                $state->subjectLength -= 1;
-                $state->maxPosition = 0;
-                $state->canBeZero = true;
-                $state->dynamicLength = false;
-            } elseif (Token::ZERO_OR_ONE_CHARACTER === $token) {
-                $state->maxPosition = 1;
-                $state->canBeZero = true;
-                $state->dynamicLength = true;
-            } elseif (Token::ZERO_OR_MANY_CHARACTERS === $token) {
-                $state->maxPosition = $state->subjectLength;
-                $state->canBeZero = true;
-                $state->dynamicLength = true;
-            } elseif (Token::MANY_OF_CHARACTERS === $token) {
-                $state->maxPosition = $state->subjectLength;
-                $state->canBeZero = false;
-                $state->dynamicLength = true;
-            } else {
-                return false;
-            }
-
-            return true;
-        }
-
-        /**
-         * @param string $haystack
-         * @param string $needle
-         *
-         * @return Generator
-         */
-        protected function getPositionOfOccurrence(string $haystack, string $needle): Generator
-        {
-            $lastPosition = 0;
-
-            while (false !== ($lastPosition = ($this->strpos)($haystack, $needle, $lastPosition))) {
-                yield $lastPosition;
-
-                $lastPosition = $lastPosition + ($this->strlen)($needle);
-            }
-        }
-
-        /**
          * @param string $pattern
          *
          * @return Generator|string[]
@@ -314,10 +183,10 @@ namespace JayBeeR\Wildcard {
                 if (0 < $position) {
                     $previousToken = null;
 
-                    yield ($this->substr)($pattern, 0, $position) => ($this->substr)($pattern, $position);
+                    yield ($this->stringFunctions->substr)($pattern, 0, $position) => ($this->stringFunctions->substr)($pattern, $position);
                 }
 
-                $pattern = ($this->substr)($pattern, $position + 1);
+                $pattern = ($this->stringFunctions->substr)($pattern, $position + 1);
 
                 $this->assertValidCharacters($token, $previousToken, $pattern, $position);
                 $this->setSpecialToken($token, $pattern, $nextToken);
@@ -335,7 +204,7 @@ namespace JayBeeR\Wildcard {
 
             // search phrase
 
-            if (0 < ($this->strlen)($pattern)) {
+            if (0 < ($this->stringFunctions->strlen)($pattern)) {
                 yield $pattern => '';
             }
         }
@@ -352,10 +221,10 @@ namespace JayBeeR\Wildcard {
 
             if ((Token::ZERO_OR_MANY_CHARACTERS === $token) && (Token::ZERO_OR_MANY_CHARACTERS === $nextToken)) {
                 $token = Token::MANY_OF_CHARACTERS;
-                $pattern = ($this->substr)($pattern, 1);
+                $pattern = ($this->stringFunctions->substr)($pattern, 1);
             } elseif ((Token::ONE_CHARACTER === $token) && (Token::ZERO_OR_MANY_CHARACTERS === $nextToken)) {
                 $token = Token::ZERO_OR_ONE_CHARACTER;
-                $pattern = ($this->substr)($pattern, 1);
+                $pattern = ($this->stringFunctions->substr)($pattern, 1);
             }
         }
 
@@ -374,7 +243,7 @@ namespace JayBeeR\Wildcard {
 
             if (Token::ESCAPE_CHAR === $token) {
                 if ((isset($pattern[0])) && ($this->hasNextToken($escapeChar = $pattern[0]))) {
-                    $pattern = ($this->substr)($pattern, 1);
+                    $pattern = ($this->stringFunctions->substr)($pattern, 1);
                 } else {
                     throw new InvalidEscapedCharacterForWildcardPattern($pattern, $position);
                 }
@@ -435,9 +304,9 @@ namespace JayBeeR\Wildcard {
         {
             $positions = array_filter(
                 [
-                    ($this->strpos)($pattern, Token::ZERO_OR_MANY_CHARACTERS),
-                    ($this->strpos)($pattern, Token::ONE_CHARACTER),
-                    ($this->strpos)($pattern, Token::ESCAPE_CHAR),
+                    ($this->stringFunctions->strpos)($pattern, Token::ZERO_OR_MANY_CHARACTERS),
+                    ($this->stringFunctions->strpos)($pattern, Token::ONE_CHARACTER),
+                    ($this->stringFunctions->strpos)($pattern, Token::ESCAPE_CHAR),
                 ],
                 fn($value) => false !== $value
             );

@@ -7,6 +7,9 @@
 
 namespace JayBeeR\Wildcard {
 
+    /**
+     *
+     */
     class WildcardConverter
     {
         /**

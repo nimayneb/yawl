@@ -15,10 +15,8 @@ namespace JayBeeR\Wildcard {
      *
      * @SuppressWarnings(PHPMD.StaticAccess) Reason: because of Factory calls
      */
-    class WildcardFactory implements Encoding
+    class WildcardFactory
     {
-        use StringFunctionMapper;
-
         protected bool $skipToken;
 
         protected ?string $previousToken;
@@ -29,17 +27,20 @@ namespace JayBeeR\Wildcard {
 
         protected string $phrase;
 
+        protected StringFunctionsMapper $stringFunctions;
+
         /**
          * @var WildcardPerformer[]
          */
         protected static array $cachedPattern = [];
 
         /**
-         *
+         * @param StringFunctionsMapper $stringFunctions
          */
-        public function __construct()
+        public function __construct(StringFunctionsMapper $stringFunctions = null)
         {
-            $this->setSingleByte();
+            $this->stringFunctions = $stringFunctions ?? new StringFunctionsMapper;
+            $this->stringFunctions->setSingleByte();
         }
 
         /**
@@ -60,7 +61,7 @@ namespace JayBeeR\Wildcard {
                     continue;
                 }
 
-                $nextToken = ($this->substr)($pattern, $offset + 1, 1);
+                $nextToken = ($this->stringFunctions->substr)($pattern, $offset + 1, 1);
 
                 if (!$this->analyseToken($token, $nextToken)) {
                     $this->analyseInvalidPreviousToken($token, $nextToken, $pattern, $offset);
@@ -105,7 +106,7 @@ namespace JayBeeR\Wildcard {
             }
 
             $phraser = WildcardPerformer::get($this->phrases);
-            $phraser->adopt($this);
+            $phraser->setStringFunctions($this->stringFunctions);
 
             return $phraser;
         }
@@ -223,10 +224,10 @@ namespace JayBeeR\Wildcard {
          */
         protected function nextCharacter($subject): Generator
         {
-            $length = ($this->strlen)($subject);
+            $length = ($this->stringFunctions->strlen)($subject);
 
             for ($i = 0; $i < $length; $i += 1) {
-                yield $i => ($this->substr)($subject, $i, 1);
+                yield $i => ($this->stringFunctions->substr)($subject, $i, 1);
             }
         }
 

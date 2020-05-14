@@ -9,6 +9,9 @@ namespace JayBeeR\Wildcard\Failures {
 
     use Exception;
 
+    /**
+     * Exception for "Invalid character for wildcard pattern"
+     */
     class InvalidCharacterForWildcardPattern extends Exception
     {
         /**

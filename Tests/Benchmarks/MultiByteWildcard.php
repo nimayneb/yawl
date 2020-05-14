@@ -20,8 +20,10 @@ require_once '../../vendor/autoload.php';
         $temp[] = $wildcards;
     }
 
-    $factory = new WildcardFactory();
-    $factory->setMultiByte();
+    $stringFunctions = new \JayBeeR\Wildcard\StringFunctionsMapper;
+    $stringFunctions->setMultiByte();
+
+    $factory = new WildcardFactory($stringFunctions);
 
     foreach ($temp as $index => ['wildcard' => $wildcard]) {
         $performer = $factory->get($wildcard);
@@ -48,8 +50,9 @@ require_once '../../vendor/autoload.php';
         $times
     );
 
-    $wc = new WildcardMatcher;
-    $wc->setMultiByte();
+    $stringFunctions->setMultiByte();
+
+    $wc = new WildcardMatcher($stringFunctions);
 
     \JayBeeR\Gists\Benchmark::run(
         'WildcardMatcher',

@@ -7,7 +7,10 @@
 
 namespace JayBeeR\Wildcard {
 
-    trait StringFunctionMapper
+    /**
+     *
+     */
+    class StringFunctionsMapper
     {
         /**
          * @var callable
@@ -25,6 +28,14 @@ namespace JayBeeR\Wildcard {
         public $substr;
 
         protected ?string $encoding = null;
+
+        /**
+         *
+         */
+        public function __construct()
+        {
+            $this->setSingleByte();
+        }
 
         /**
          *
@@ -51,16 +62,6 @@ namespace JayBeeR\Wildcard {
                 => mb_strpos($haystack, $needle, $offset, $this->encoding);
             $this->substr = fn(string $string, int $start, int $length = null)
                 => mb_substr($string, $start, $length, $this->encoding);
-        }
-
-        /**
-         * @param object $object
-         */
-        public function adopt(object $object)
-        {
-            $this->substr = $object->substr;
-            $this->strlen = $object->strlen;
-            $this->strpos = $object->strpos;
         }
     }
 }
