@@ -132,26 +132,30 @@ namespace JayBeeR\Wildcard\Tests\Unit {
                 71 => ['search phrase results', 's*s*s', true],
                 72 => ['search phrase results', 's*s*s?*', true],
 
+                // Repeating characters
+                73 => ['sssss', '?ss?s', true],
+                74 => ['ssssss', '?ss?s', false],
+
                 // Escaped characters
-                73 => ['?', '\\?', true],
-                74 => ['*', '\\*', true],
+                75 => ['?', '\\?', true],
+                76 => ['*', '\\*', true],
 
-                75 => ['\\', '\\\\', true],
+                77 => ['\\', '\\\\', true],
 
-                76 => ['\\a', '\\\\a', true],
+                78 => ['\\a', '\\\\a', true],
 
-                77 => ['search phrase?', '*\\?', true],
-                78 => ['?search phrase', '\\?*', true],
-                79 => ['search\\phrase', '*\\\\*', true],
+                79 => ['search phrase?', '*\\?', true],
+                80 => ['?search phrase', '\\?*', true],
+                81 => ['search\\phrase', '*\\\\*', true],
 
-                80 => ['search\\*', '*\\*', true], // matches <search\> with wildcard, then matches escaped <*>
-                81 => ['search\\*', '*\\\\*', true], // matches <search> with wildcard, then matches escaped <\>, then matches <*> with wildcard
-                82 => ['search\\*', '*\\\\\\*', true], // matches <search> with wildcard, then matches escaped <\>, then matches escaped <*>
-                83 => ['search\\*', '*\\\\\\\\*', false], // matches <search> with wildcard, then matches escaped <\>, then not matches escaped <\> - ignore rest of "*"
+                82 => ['search\\*', '*\\*', true], // matches <search\> with wildcard, then matches escaped <*>
+                83 => ['search\\*', '*\\\\*', true], // matches <search> with wildcard, then matches escaped <\>, then matches <*> with wildcard
+                84 => ['search\\*', '*\\\\\\*', true], // matches <search> with wildcard, then matches escaped <\>, then matches escaped <*>
+                85 => ['search\\*', '*\\\\\\\\*', false], // matches <search> with wildcard, then matches escaped <\>, then not matches escaped <\> - ignore rest of "*"
 
-                84 => ['search\\phrase', '*\\\\phrase', true],
+                86 => ['search\\phrase', '*\\\\phrase', true],
 
-                85 => ['search\\phrase', 'search\\\\p*', true]
+                87 => ['search\\phrase', 'search\\\\p*', true]
             ];
         }
 
@@ -161,10 +165,10 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function wildcardVariantsWithInvalidCharacterProvider()
         {
             return [
-                86 => ['search phrase', '***'],
-                87 => ['search phrase', '?**'],
-                88 => ['search phrase', '?*?'],
-                89 => ['search phrase', '*?']
+                88 => ['search phrase', '***'],
+                89 => ['search phrase', '?**'],
+                90 => ['search phrase', '?*?'],
+                91 => ['search phrase', '*?']
             ];
         }
 
@@ -174,10 +178,10 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function wildcardVariantsWithInvalidEscapedCharacterProvider()
         {
             return [
-                90 => ['\\', '\\', false],
-                91 => ['a', '\\a', false],
-                92 => ['search\\phrase', '*\\phrase', false],
-                93 => ['search\\phrase', 'search\\p*', false],
+                92 => ['\\', '\\', false],
+                93 => ['a', '\\a', false],
+                94 => ['search\\phrase', '*\\phrase', false],
+                95 => ['search\\phrase', 'search\\p*', false],
             ];
         }
     }

@@ -11,7 +11,7 @@ namespace JayBeeR\Wildcard {
     use JayBeeR\Wildcard\Failures\InvalidCharacterForWildcardPattern;
     use JayBeeR\Wildcard\Failures\InvalidEscapedCharacterForWildcardPattern;
 
-    trait WildcardMatcher
+    class WildcardMatcher
     {
         use StringFunctionMapper;
 
@@ -25,7 +25,7 @@ namespace JayBeeR\Wildcard {
          * @throws InvalidCharacterForWildcardPattern
          * @throws InvalidEscapedCharacterForWildcardPattern
          */
-        public function matchWildcard(string $subject, string $pattern): bool
+        public function match(string $subject, string $pattern): bool
         {
             return $this->cachedResults[$pattern][$subject]
                 ?? ($this->cachedResults[$pattern][$subject] = $this->hasWildcardMatch($subject, $pattern));

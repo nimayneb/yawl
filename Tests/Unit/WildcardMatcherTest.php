@@ -16,13 +16,13 @@ namespace JayBeeR\Wildcard\Tests\Unit {
     class WildcardMatcherTest extends WildcardTest
     {
         /**
-         * @var WildcardMatcher|object
+         * @var WildcardMatcher
          */
         protected object $subject;
 
         public function setUp(): void
         {
-            $this->subject = $this->getObjectForTrait(WildcardMatcher::class);
+            $this->subject = new WildcardMatcher;
         }
 
         /**
@@ -37,7 +37,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
             $this->subject->setSingleByte();
 
             foreach (WildcardGenerator::getRandomCount(2000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
-                $result = $this->subject->matchWildcard($subject, $wildcard);
+                $result = $this->subject->match($subject, $wildcard);
                 $this->assertTrue($result, sprintf('%d: <%s> corresponding <%s>', $index, $subject, $wildcard));
             }
         }
@@ -54,7 +54,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
             $this->subject->setMultiByte();
 
             foreach (WildcardGenerator::getRandomCount(2000) as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
-                $result = $this->subject->matchWildcard($subject, $wildcard);
+                $result = $this->subject->match($subject, $wildcard);
                 $this->assertTrue($result, sprintf('%d: <%s> corresponding <%s>', $index, $subject, $wildcard));
             }
         }
@@ -73,7 +73,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function hasSingleByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
             $this->subject->setSingleByte();
-            $result = $this->subject->matchWildcard($subject, $pattern);
+            $result = $this->subject->match($subject, $pattern);
             $this->assertEquals($valid, $result);
         }
 
@@ -91,7 +91,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         public function hasMultiByteWildcardMatchReturnsResultForMatchingWildcard(string $subject, string $pattern, bool $valid)
         {
             $this->subject->setMultiByte();
-            $result = $this->subject->matchWildcard($subject, $pattern);
+            $result = $this->subject->match($subject, $pattern);
             $this->assertEquals($valid, $result);
         }
 
@@ -109,7 +109,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         {
             $this->expectException(InvalidCharacterForWildcardPattern::class);
             $this->subject->setSingleByte();
-            $this->subject->matchWildcard($subject, $pattern);
+            $this->subject->match($subject, $pattern);
         }
 
         /**
@@ -126,7 +126,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         {
             $this->expectException(InvalidCharacterForWildcardPattern::class);
             $this->subject->setMultiByte();
-            $this->subject->matchWildcard($subject, $pattern);
+            $this->subject->match($subject, $pattern);
         }
 
         /**
@@ -143,7 +143,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         {
             $this->expectException(InvalidEscapedCharacterForWildcardPattern::class);
             $this->subject->setSingleByte();
-            $this->subject->matchWildcard($subject, $pattern);
+            $this->subject->match($subject, $pattern);
         }
 
         /**
@@ -160,7 +160,7 @@ namespace JayBeeR\Wildcard\Tests\Unit {
         {
             $this->expectException(InvalidEscapedCharacterForWildcardPattern::class);
             $this->subject->setMultiByte();
-            $this->subject->matchWildcard($subject, $pattern);
+            $this->subject->match($subject, $pattern);
         }
     }
 }

@@ -54,21 +54,14 @@ require_once '../../vendor/autoload.php';
         $times
     );
 
-    $wc = new class ()
-    {
-        use WildcardMatcher;
-
-        public function __construct()
-        {
-            $this->setSingleByte();
-        }
-    };
+    $wc = new WildcardMatcher;
+    $wc->setSingleByte();
 
     \JayBeeR\Gists\Benchmark::run(
         'WildcardMatcher',
         function () use ($temp, $wc) {
             foreach ($temp as $index => ['subject' => $subject, 'wildcard' => $wildcard]) {
-                if (!$wc->matchWildcard($subject, $wildcard)) {
+                if (!$wc->match($subject, $wildcard)) {
                     throw new Exception(
                         sprintf(
                             'Invalid result for <%s> (%s) [%s] found! expected: <true>, but <false>',

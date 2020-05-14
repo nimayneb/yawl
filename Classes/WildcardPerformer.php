@@ -78,14 +78,14 @@ namespace JayBeeR\Wildcard {
             $found = false;
             $newSubject = $subject;
 
-            foreach ($this->getPositionOfOccurrence($subject, $phrase) as $position) {
+            foreach ($this->getPositionOfOccurrence($subject, $phrase, $min) as $position) {
                 if ('' === $newSubject) {
                     break;
                 }
 
                 $found = true;
 
-                if (!(($position >= $min) && ($position <= $max))) {
+                if (!($position <= $max)) {
                     $found = false;
 
                     continue;
@@ -110,12 +110,13 @@ namespace JayBeeR\Wildcard {
         /**
          * @param string $haystack
          * @param string $needle
+         * @param int $offset
          *
          * @return Generator
          */
-        protected function getPositionOfOccurrence(string $haystack, string $needle): Generator
+        protected function getPositionOfOccurrence(string $haystack, string $needle, int $offset): Generator
         {
-            $lastPosition = 0;
+            $lastPosition = $offset;
 
             while (false !== ($lastPosition = ($this->strpos)($haystack, $needle, $lastPosition))) {
                 yield $lastPosition;
