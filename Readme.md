@@ -196,3 +196,17 @@ Non-recursive Algorithms:
 Recursive Algorithms:
 - [Compares a filename or pathname to a pattern by "Apple"](https://opensource.apple.com/source/Libc/Libc-167/gen.subproj/fnmatch.c.auto.html)
 - [Stackoverflow - Recursive solutions for glob pattern matching by "Siler"](https://stackoverflow.com/questions/30823596/recursive-solutions-for-glob-pattern-matching)
+
+
+## PDepend
+
+![Build Status](Resources/PDependPyramid.svg)
+
+- NOP - Number Of Packages
+- NOC - Number Of Classes
+- NOM - Number Of Methods
+- LOC – Lines of Code
+- CYCLO - Cyclomatic complexity
+- CALLS - number of distinct function- and method-calls
+- ANDC - Average Number of Derived Classes
+- AHH - Average Hierarchy Height

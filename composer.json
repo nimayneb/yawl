@@ -16,7 +16,7 @@
   ],
   "license": "GPL-3.0",
   "type": "library",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "authors": [
     {
       "name": "Jan Runte",
@@ -26,11 +26,12 @@
   "require": {
     "php": "^7.4.0",
     "ext-mbstring": "*",
-    "nimayneb/benchmark": "1.0.1",
-    "phpmd/phpmd": "^2.8"
+    "nimayneb/benchmark": "1.0.1"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.1.0",
+    "phpmd/phpmd": "^2.8",
+    "pdepend/pdepend": "^2.7",
     "nimayneb/phpqg": "1.0.0"
   },
   "autoload": {
@@ -81,6 +82,8 @@
   ],
   "scripts": {
     "tests": "phpunit",
-    "phpmd": "phpmd Classes ansi vendor/nimayneb/phpqg/phpmd.xml"
+    "coverage": "phpunit --coverage-html=Coverage --whitelist Classes",
+    "phpmd": "phpmd Classes ansi vendor/nimayneb/phpqg/phpmd.xml",
+    "pdepend": "pdepend --jdepend-chart=Resources/PDependChart.svg --overview-pyramid=Resources/PDependPyramid.svg Classes"
   }
 }

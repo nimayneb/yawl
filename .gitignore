@@ -4,3 +4,5 @@ composer.lock
 *.log
 .phpunit.*
 .php_cs.*
+coverage-report.log
+Coverage
