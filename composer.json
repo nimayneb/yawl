@@ -16,7 +16,7 @@
   ],
   "license": "GPL-3.0",
   "type": "library",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "authors": [
     {
       "name": "Jan Runte",
@@ -81,7 +81,7 @@
     }
   ],
   "scripts": {
-    "tests": "phpunit",
+    "tests": "phpunit --coverage-text=coverage-report.log --whitelist Classes",
     "coverage": "phpunit --coverage-html=Coverage --whitelist Classes",
     "phpmd": "phpmd Classes ansi vendor/nimayneb/phpqg/phpmd.xml",
     "pdepend": "pdepend --jdepend-chart=Resources/PDependChart.svg --overview-pyramid=Resources/PDependPyramid.svg Classes"
